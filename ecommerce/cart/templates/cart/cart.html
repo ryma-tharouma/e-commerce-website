@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Test E-commerce</title>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+  </head>
+  <body>
+    <h1>Produits</h1>
+    <ul id="products-list"></ul>
+
+    <h1>Panier</h1>
+    <ul id="cart-list"></ul>
+    <form action="http://127.0.0.1:8000/api/cart/add/1/" method="POST">
+      {% csrf_token %}
+      <input type="hidden" name="quantity" value="1" />
+      <button type="submit">Ajouter au panier1</button>
+    </form>
+    <form action="http://127.0.0.1:8000/api/cart/add/2/" method="POST">
+      {% csrf_token %}
+      <input type="hidden" name="quantity" value="1" />
+      <button type="submit">Ajouter au panier2</button>
+    </form>
+    <form action="http://127.0.0.1:8000/api/cart/remove/1/" method="POST">
+        {% csrf_token %}
+        <input type="hidden" name="quantity" value="1" />
+        <button type="submit">Supprimer au panier</button>
+      </form>
+    <form action="http://127.0.0.1:8000/api/cart/clear/" method="POST">
+        {% csrf_token %}
+      <button type="submit">Vider le panier</button>
+    </form>
+    <form action="http://127.0.0.1:8000/api/cart/api/checkout-session/" method="POST">
+        {% csrf_token %}
+      <button type="submit">💳 Payer</button>
+    </form>
+
+    <script>
+      const API_URL = "http://127.0.0.1:8000";
+      function getCSRFToken() {
+        return document.cookie
+          .split("; ")
+          .find((row) => row.startsWith("csrftoken="))
+          ?.split("=")[1];
+      }
+      // 🔹 Charger les produits
+      function loadProducts() {
+        axios
+          .get(`${API_URL}/api/products/`)
+          .then((response) => {
+            const productsList = document.getElementById("products-list");
+            productsList.innerHTML = "";
+            response.data.forEach((product) => {
+              const li = document.createElement("li");
+              li.innerHTML = `${product.name} - ${product.price}€ (Stock: ${product.stock}) 
+                            <button onclick="addToCart(${product.id})">Ajouter</button>`;
+              productsList.appendChild(li);
+            });
+          })
+          .catch((error) => console.error("Erreur chargement produits", error));
+      }
+
+      // 🔹 Ajouter au panier
+      function addToCart(productId) {
+        fetch(`/add/${productId}/`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "X-CSRFToken": getCSRFToken(), // 🔥 Ajoute le token CSRF
+          },
+          body: JSON.stringify({ quantity: 1 }),
+        })
+          .then((response) => response.json())
+          .then((data) => alert("Ajouté au panier !"))
+          .catch((error) => console.error("Erreur:", error));
+      }
+
+      // 🔹 Charger le panier
+      function loadCart() {
+        axios
+          .get(`${API_URL}/view/`)
+          .then((response) => {
+            const cartList = document.getElementById("cart-list");
+            cartList.innerHTML = "";
+            response.data.forEach((item) => {
+              const li = document.createElement("li");
+              li.innerHTML = `${item.name} - ${item.price}€ x ${item.quantity} = ${item.subtotal}€ 
+                            <button onclick="removeFromCart(${item.product_id})">❌</button>`;
+              cartList.appendChild(li);
+            });
+          })
+          .catch((error) => console.error("Erreur chargement panier", error));
+      }
+
+      // 🔹 Supprimer un produit du panier
+      function removeFromCart(productId) {
+        axios
+          .post(`${API_URL}/remove/${productId}/`)
+          .then(() => {
+            alert("Produit supprimé !");
+            loadCart();
+          })
+          .catch((error) => alert("Erreur suppression produit"));
+      }
+
+      // 🔹 Vider le panier
+      function clearCart() {
+        fetch("/api/cart/clear/", {
+          method: "POST",
+          headers: {
+            "X-CSRFToken": getCSRFToken(),
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({}),
+        })
+          .then((response) => response.json())
+          .then((data) => console.log(data));
+      }
+
+      // 🔹 Paiement Stripe
+      function checkout() {
+        axios
+          .post(`${API_URL}/api/checkout-session/`)
+          .then((response) => {
+            window.location.href = `https://checkout.stripe.com/pay/${response.data.id}`;
+          })
+          .catch((error) => alert("Erreur lors du paiement"));
+      }
+
+      // Charger les données au début
+      loadProducts();
+      loadCart();
+    </script>
+  </body>
+</html>
