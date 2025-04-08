@@ -35,6 +35,7 @@ INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
+    'corsheaders',
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
@@ -42,19 +43,18 @@ INSTALLED_APPS = [
     'rest_framework',
     # Notre application panier et paiement
     'cart',
-    'corsheaders',
 ]
 
 MIDDLEWARE = [
-    'django.middleware.security.SecurityMiddleware',
-    'django.contrib.sessions.middleware.SessionMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.common.CommonMiddleware',
+    'django.middleware.security.SecurityMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
+    'django.contrib.sessions.middleware.SessionMiddleware',
+    'cart.middleware.SessionPersistenceMiddleware', 
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'corsheaders.middleware.CorsMiddleware',
-    'django.middleware.common.CommonMiddleware',
 ]
 
 ROOT_URLCONF = 'ecommerce.urls'
@@ -74,6 +74,7 @@ TEMPLATES = [
         },
     },
 ]
+
 
 WSGI_APPLICATION = 'ecommerce.wsgi.application'
 
@@ -156,20 +157,25 @@ REST_FRAMEWORK = {
     ]
 }
 
-SESSION_ENGINE = 'django.contrib.sessions.backends.db'  # 🔹 Sessions stockées en base de données
-
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:3000",  # Autorise Next.js
-    #"http://127.0.0.1:3000",
 ]
 
-CORS_ALLOW_ALL_ORIGINS = False  # Autoriser tous les domaines
+SESSION_ENGINE = 'django.contrib.sessions.backends.db'  # 🔹 Sessions stockées en base de données
+
+
+#CORS_ALLOW_ALL_ORIGINS = True  # Autoriser tous les domaines
 CORS_ALLOW_CREDENTIALS = True  # Autoriser les cookies et tokens
 
-SESSION_COOKIE_NAME = 'mycart_session'  # Nom du cookie de session
-SESSION_COOKIE_AGE = 1209600  # Durée de session : 1 jour
-SESSION_SAVE_EVERY_REQUEST = True  # Sauvegarde la session à chaque requête
-SESSION_EXPIRE_AT_BROWSER_CLOSE = False  # Ne pas supprimer à la fermeture du navigateur
-SESSION_COOKIE_HTTPONLY = True  # 🔹 Empêche l'accès JS aux cookies (sécurité)
-SESSION_COOKIE_SECURE = False  # 🔹 Mets `True` si HTTPS activé
-SESSION_COOKIE_SAMESITE = "None"  # 🔹 Autorise les requêtes cross-origin
+# SESSION_COOKIE_NAME = 'sessionid'  # Nom du cookie de session
+# SESSION_COOKIE_AGE = 3600 * 24 * 7   # Durée de session : 1 jour
+# #SESSION_SAVE_EVERY_REQUEST = True  # Sauvegarde la session à chaque requête
+# SESSION_EXPIRE_AT_BROWSER_CLOSE = False  # Ne pas supprimer à la fermeture du navigateur
+# SESSION_COOKIE_HTTPONLY = True  # 🔹 Empêche l'accès JS aux cookies (sécurité)
+# SESSION_COOKIE_SECURE = False  # 🔹 Mets `True` si HTTPS activé
+# #SESSION_COOKIE_SAMESITE = "None"  # 🔹 Autorise les requêtes cross-origin
+# SESSION_COOKIE_SAMESITE = 'Lax'
+# CORS_ORIGIN_ALLOW_ALL = True  # Ou spécifiez les origines autorisées
+# CORS_ALLOW_METHODS = ['GET', 'POST', 'PUT', 'DELETE', 'HEAD']
+# SESSION_SAVE_EVERY_REQUEST = True  # Ne pas recréer la session à chaque requête
+# SESSION_COOKIE_DOMAIN = '127.0.0.1'

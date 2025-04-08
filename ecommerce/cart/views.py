@@ -17,12 +17,31 @@ from django.http import HttpResponse
 
 # Stripe Configuration
 stripe.api_key = settings.STRIPE_SECRET_KEY
+@api_view(['GET'])
+def init_session(request):
+    """
+    Initialise une nouvelle session si elle n'existe pas
+    """
+    if not request.session.session_key:
+        request.session.create()
+        print(f"🆕 Session créée: {request.session.session_key}")
+    return Response({
+        'status': 'session initialized',
+        'session_key': request.session.session_key
+    })
 
-def cart_page(request):
-    return render(request, 'cart/cart.html')
+def check_session(request):
+    session_data = request.session.items()
+    return JsonResponse({"session": dict(session_data)})
+
+# def cart_page(request):
+#     return render(request, 'cart/cart.html')
 
 def list_cart(session_id):
+    print("Session key après load dans list cart :", session_id)
+
     cart_items = CartItem.objects.filter(session_id=session_id)
+    print(f"🛒 [DEBUG] Nombre d'items trouvés: {cart_items.count()}")
     return [
         {
             'product_id': item.product.id,
@@ -74,19 +93,17 @@ def generate_invoice(order):
 
 @api_view(['POST'])
 def add_to_cart(request, product_id):
-    print("hereA")
+    #print("Cookies reçus :", request.COOKIES)  # 🔍 Vérifie si 'sessionid' est bien là
+    session_id = request.session.session_key
     product = get_object_or_404(Product, id=product_id)
     quantity = int(request.data.get('quantity', 1))
-    print("hereB")
-    session_id = request.session.session_key
-    print("hereC")
+    # print("🔑 Session actuelle dans add cart:", request.session.session_key)
+    # print("🔒 Cookies reçus dans add cart :", request.COOKIES)
+
+    print("Session key après load dans add to cart :", session_id)
     if not session_id:
-        print("here")
-        request.session.create()
-        session_id = request.session.session_key
-    # if not session_id:
-    #     print("here")
-    #     request.session.save()
+        print("❌ Session introuvable, problème de cookie ?")
+        return Response({'error': 'Session non trouvée'}, status=400)
 
     if product.stock < quantity:
         return Response({'error': 'Stock insuffisant'}, status=400)
@@ -104,6 +121,7 @@ def add_to_cart(request, product_id):
     product.save()
 
     return Response({'message': 'Produit ajouté au panier', 'cart': list_cart(session_id)})
+
 
 @api_view(['POST'])
 def remove_from_cart(request, product_id):
@@ -140,36 +158,19 @@ def clear_cart(request):
     cart_items.delete()
     return Response({'message': 'Panier vidé et stock restauré'})
 
-# @api_view(['GET'])
-# @csrf_exempt
-# def get_cart(request):
-#     if not request.session.session_key:
-#         request.session.save()  # Changez create() par save()
-#         print(f"🔄 Session initialisée: {request.session.session_key}")
-#     else:
-#         print(f"🔁 Session existante: {request.session.session_key}")
-    
-#     cart_data = list_cart(request.session.session_key)
-#     response = Response(cart_data)
-    
-#     if not request.COOKIES.get('sessionid'):
-#         response.set_cookie(
-#             key='sessionid',
-#             value=request.session.session_key,
-#             max_age=60*60*24*14,  # 2 semaines
-#             httponly=True,
-#             samesite='Lax',
-#             secure=False,
-#             path='/'
-#         )
-#     return response 
 
 @api_view(['GET'])
 def get_cart(request):
     session_id = request.session.session_key
+    print("session dans get cart : ",session_id)
+    # print("🔑 Session actuelle dans get cart:", request.session.session_key)
+    # print("🔒 Cookies reçus dans get cart :", request.COOKIES)
+
     if not session_id:
         return Response({'error': 'Session non trouvée'}, status=400)
     return Response(list_cart(session_id))
+
+
 
 # @api_view(['GET'])
 # def get_cart(request):
