@@ -8,7 +8,7 @@ import {
   FiShoppingBag,
   FiSearch,
 } from "react-icons/fi";
-import { useCart } from "../context/CartContext";
+import { useCart } from "./CartContext";
 
 export default function Cart() {
   const { cart, addToCart } = useCart();
