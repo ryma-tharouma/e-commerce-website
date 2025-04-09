@@ -59,15 +59,46 @@ export function CartProvider({ children }) {
     await api.post(`/clear/`);
     console.log("tst", await fetchCart());
   };
+  
+  
+  const create_checkout_session = async () => {
+    try {
+      const response = await axios.get('http://localhost:8000/api/cart/api/checkout-session/', {
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRFToken': getCookie('csrftoken'),
+        },
+        withCredentials: true
+      });
+  
+      if (!response.data || !response.data.url) {
+        throw new Error('Invalid response from server.');
+      }
+  
+      window.location.href = response.data.url;
+    } catch (error) {
+      console.error("Checkout error:", error.response ? error.response.data : error.message);
+      alert(error.response ? error.response.data.error : 'An unexpected error occurred');
+    }
+  };
+  
+  
+  // Helper function to get cookies
+  function getCookie(name) {
+    const value = `; ${document.cookie}`;
+    const parts = value.split(`; ${name}=`);
+    if (parts.length === 2) return parts.pop().split(';').shift();
+  }
+  
+  
 
   return (
-    <CartContext.Provider value={{ cart, addToCart, fetchCart,removeFromCart,clearCart }}>
+    <CartContext.Provider value={{ cart, addToCart, fetchCart,removeFromCart,clearCart,create_checkout_session }}>
       {children}
     </CartContext.Provider>
   );
 }
 
-// ⚠️ Ceci est la partie manquante ⚠️
 export function useCart() {
   const context = useContext(CartContext);
   if (!context) {
