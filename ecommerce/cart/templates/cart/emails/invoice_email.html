@@ -1,0 +1,31 @@
+<!-- cart/templates/cart/emails/invoice_email.html -->
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Facture #{{ order.id }}</title>
+</head>
+<body>
+    <h1>Merci pour votre commande !</h1>
+    <p>Voici les détails de votre commande #{{ order.id }} :</p>
+    
+    <table>
+        <tr>
+            <th>Produit</th>
+            <th>Quantité</th>
+            <th>Prix</th>
+        </tr>
+        {% for item in order.items.all %}
+        <tr>
+            <td>{{ item.product.name }}</td>
+            <td>{{ item.quantity }}</td>
+            <td>{{ item.product.price }} €</td>
+        </tr>
+        {% endfor %}
+    </table>
+    
+    <p><strong>Total : {{ order.total_price }} €</strong></p>
+    
+    <p>Votre facture est jointe à cet email.</p>
+</body>
+</html>
