@@ -9,7 +9,7 @@ const api = axios.create({
   baseURL: API_URL,
   withCredentials: true,
   headers: {
-    "Accept": "application/json",
+    Accept: "application/json",
     "Content-Type": "application/json",
   },
 });
@@ -21,20 +21,23 @@ export function CartProvider({ children }) {
     try {
       const { data } = await api.get("/view/");
       console.log("🛒 Réponse API:", data);
-      setCart(data?.items || data?.cart || []);
+      setCart(data);
     } catch (error) {
-      console.error("❌ Erreur fetchCart:", error.response?.data || error.message);
+      console.error(
+        "❌ Erreur fetchCart:",
+        error.response?.data || error.message
+      );
     }
   };
 
-// Dans CartContext.js (frontend)
-useEffect(() => {
+  // Dans CartContext.js (frontend)
+  useEffect(() => {
     const initializeCart = async () => {
       // 1. Initialise la session
-      await axios.get('http://localhost:8000/api/cart/init/', { 
-        withCredentials: true 
+      await axios.get("http://localhost:8000/api/cart/init/", {
+        withCredentials: true,
       });
-      
+
       // 2. Charge le panier
       await fetchCart();
     };
@@ -42,12 +45,23 @@ useEffect(() => {
   }, []);
 
   const addToCart = async (productId) => {
-    await api.post(`/add/${productId}/`);
-    await fetchCart();
+    console.log("test", productId.product_id);
+    await api.post(`/add/${productId.product_id}/`);
+    console.log("tst", await fetchCart());
+  };
+
+  const removeFromCart = async (productId) => {
+    console.log("tst", productId);
+    await api.post(`/remove/${productId.product_id}/`);
+    console.log("tst", await fetchCart());
+  };
+  const clearCart = async () => {
+    await api.post(`/clear/`);
+    console.log("tst", await fetchCart());
   };
 
   return (
-    <CartContext.Provider value={{ cart, addToCart, fetchCart }}>
+    <CartContext.Provider value={{ cart, addToCart, fetchCart,removeFromCart,clearCart }}>
       {children}
     </CartContext.Provider>
   );
@@ -57,7 +71,7 @@ useEffect(() => {
 export function useCart() {
   const context = useContext(CartContext);
   if (!context) {
-    throw new Error('useCart must be used within a CartProvider');
+    throw new Error("useCart must be used within a CartProvider");
   }
   return context;
 }

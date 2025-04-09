@@ -11,8 +11,8 @@ import {
 import { useCart } from "./CartContext";
 
 export default function Cart() {
-  const { cart, addToCart } = useCart();
-  console.log("🛒 Contenu du panier :", cart);
+  const { cart, addToCart,removeFromCart,clearCart } = useCart();
+  //console.log("🛒 Contenu du panier :", cart);
   return (
     <div className="min-h-screen flex flex-col justify-between bg-gray-100">
       {/* HEADER */}
@@ -95,8 +95,8 @@ export default function Cart() {
         <button
           onClick={() =>
             addToCart({
-              id: 1,
-              name: "Antique Vase",
+              product_id : 1,
+              name: "vase",
               price: 150,
               image: "/vase1.jpg",
             })
@@ -123,7 +123,7 @@ export default function Cart() {
           <div className="w-full max-w-4xl bg-white p-6 shadow-md rounded-lg">
             {cart.map((item) => (
               <div
-                key={item.id}
+                key={item.name}
                 className="flex justify-between items-center border-b py-4"
               >
                 <div className="flex items-center space-x-4">
@@ -140,13 +140,25 @@ export default function Cart() {
                   </div>
                 </div>
                 <button
-                  onClick={() => removeFromCart(item.id)}
+                  onClick={() => addToCart(item)}
+                  className="text-red-500 hover:underline"
+                >
+                  Add
+                </button>
+                <button
+                  onClick={() => removeFromCart(item)}
                   className="text-red-500 hover:underline"
                 >
                   Remove
                 </button>
               </div>
+              
             ))}
+            <button 
+                onClick={()=> clearCart()}
+                className="px-12 py-5 bg-gray-900 text-white text-lg rounded-md shadow-md hover:bg-white hover:text-gray-900 hover:shadow-lg cursor-pointer ">
+                Clear cart
+              </button>
           </div>
         )}
       </main>
