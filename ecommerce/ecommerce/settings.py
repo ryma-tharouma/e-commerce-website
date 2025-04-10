@@ -38,11 +38,12 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    # Ajout de Django REST Framework
     'rest_framework',
-    # Notre application panier et paiement
-    'cart',
+    'rest_framework_simplejwt.token_blacklist',
     'corsheaders',
+    'cart',
+    'users',
+
 ]
 
 MIDDLEWARE = [
@@ -118,6 +119,7 @@ TIME_ZONE = 'UTC'
 USE_I18N = True
 
 USE_TZ = True
+APPEND_SLASH = False
 
 
 # Static files (CSS, JavaScript, Images)
@@ -148,6 +150,7 @@ REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': [
         'rest_framework.authentication.SessionAuthentication',
         'rest_framework.authentication.BasicAuthentication',
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
     ],
     
     'DEFAULT_PERMISSION_CLASSES': [
@@ -158,12 +161,14 @@ REST_FRAMEWORK = {
 
 SESSION_ENGINE = 'django.contrib.sessions.backends.db'  # 🔹 Sessions stockées en base de données
 
-CORS_ALLOWED_ORIGINS = [
-    "http://localhost:3000",  # Autorise Next.js
-    #"http://127.0.0.1:3000",
-]
+# CORS_ALLOWED_ORIGINS = [
+#     "http://localhost:3000",  # Autorise Next.js
+#     #"http://127.0.0.1:3000",
+# ]
+CORS_ALLOW_ALL_ORIGINS = True  # or use CORS_ALLOWED_ORIGINS
 
-CORS_ALLOW_ALL_ORIGINS = False  # Autoriser tous les domaines
+
+# CORS_ALLOW_ALL_ORIGINS = False  # Autoriser tous les domaines
 CORS_ALLOW_CREDENTIALS = True  # Autoriser les cookies et tokens
 
 SESSION_COOKIE_NAME = 'mycart_session'  # Nom du cookie de session
@@ -173,3 +178,5 @@ SESSION_EXPIRE_AT_BROWSER_CLOSE = False  # Ne pas supprimer à la fermeture du n
 SESSION_COOKIE_HTTPONLY = True  # 🔹 Empêche l'accès JS aux cookies (sécurité)
 SESSION_COOKIE_SECURE = False  # 🔹 Mets `True` si HTTPS activé
 SESSION_COOKIE_SAMESITE = "None"  # 🔹 Autorise les requêtes cross-origin
+
+AUTH_USER_MODEL = 'users.CustomUser'
