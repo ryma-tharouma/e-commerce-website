@@ -1,9 +1,10 @@
 "use client"
 import { useState } from "react";
-import { loginUser } from "@/lib/api";
+import { registerUser } from "@/lib/api";
 
-export default function Login() {
+export default function Register() {
   const [username, setUsername] = useState("");
+  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(false);
@@ -11,9 +12,8 @@ export default function Login() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const credentials = { username, password };
-      const { access } = await loginUser(credentials);
-      localStorage.setItem("token", access);
+      const userData = { username, email, password };
+      await registerUser(userData);
       setSuccess(true);
       setError(null);
     } catch (err) {
@@ -24,13 +24,20 @@ export default function Login() {
 
   return (
     <div className="max-w-md mx-auto p-6">
-      <h1 className="text-3xl font-semibold mb-4">Login</h1>
+      <h1 className="text-3xl font-semibold mb-4">Register</h1>
       <form onSubmit={handleSubmit} className="space-y-4">
         <input
           type="text"
           placeholder="Username"
           value={username}
           onChange={(e) => setUsername(e.target.value)}
+          className="w-full p-3 border border-gray-300 rounded"
+        />
+        <input
+          type="email"
+          placeholder="Email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
           className="w-full p-3 border border-gray-300 rounded"
         />
         <input
@@ -44,11 +51,11 @@ export default function Login() {
           type="submit"
           className="w-full bg-blue-500 text-white py-3 rounded hover:bg-blue-600"
         >
-          Login
+          Register
         </button>
       </form>
 
-      {success && <p className="text-green-500 mt-4">Login successful!</p>}
+      {success && <p className="text-green-500 mt-4">Registration successful!</p>}
       {error && <p className="text-red-500 mt-4">{error}</p>}
     </div>
   );
