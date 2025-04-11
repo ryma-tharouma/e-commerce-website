@@ -21,6 +21,9 @@ from reportlab.lib.pagesizes import A4
 from reportlab.pdfgen import canvas
 from django.utils.html import strip_tags
 
+
+from Auction_Sealed.models import SealedBid
+from Auction_Combinatoire.models import CombinatorialBid
 # Stripe Configuration
 stripe.api_key = settings.STRIPE_SECRET_KEY
 
@@ -114,14 +117,6 @@ def create_auction(request):
     return Response({"message": "Auction created successfully!", "auction_id": auction.id}, status=status.HTTP_201_CREATED)
 
 
-
-
-
-
-
-
-
-
 # Génération de la facture PDF
 def generate_invoice(auction):
     buffer = BytesIO()
@@ -174,3 +169,68 @@ def send_invoice_email(auction,user_email , pdf_buffer):
         print(f"✅ Facture envoyée à {user_email}")
     except Exception as e:
         print(f"❌ Erreur d'envoi d'email: {e}")
+
+
+
+def get_user_bids(request, user_id):
+    try:
+        # Fetch the user from the database
+        user = User.objects.get(id=user_id)
+        print("1")
+
+        # Fetch bids for the user from all relevant models
+        english_bids = EnglishBid.objects.filter(bidder=user)
+        sealed_bids = SealedBid.objects.filter(bidder=user)
+        combinatorial_bids = CombinatorialBid.objects.filter(user=user)
+        print("1")
+        english_bids_data = []
+        if english_bids :
+            for bid in english_bids:
+                    english_bids_data.append({
+                        'id': bid.id,
+                        'auction_id': bid.auction.id,
+                        'auction_title': bid.auction.title,
+                        'amount': float(bid.amount),
+                        
+                    })
+        print("1")
+
+        sealed_bids_data = []
+        if sealed_bids :
+            for bid in sealed_bids:
+                    sealed_bids_data.append({
+                        'id': bid.id,
+                        'auction_id': bid.auction.id,
+                        'auction_title': bid.auction.title,
+                        'amount': float(bid.amount),
+                        
+                    })
+        print("1")
+
+        Combinatorial_bids_data = []
+        if combinatorial_bids :
+            for bid in combinatorial_bids:
+                product_list=[]
+                for product in bid.products:
+                    product_list.append(product.name)
+                Combinatorial_bids_data.append({
+                        'id': bid.id,
+                        'auction_id': bid.auction.id,
+                        'auction_title': bid.auction.title,
+                        'amount': float(bid.amount),
+                        'products':product_list
+                    })                            
+
+        print("1")
+
+        # Return the data as a JSON response with separate sections
+
+        return JsonResponse({
+
+            'english_bids': english_bids_data,
+            'sealed_bids': sealed_bids_data,
+            'combinatorial_bids': Combinatorial_bids_data,
+        }, status=200)
+
+    except User.DoesNotExist:
+        return JsonResponse({'error': 'User not found'}, status=404)

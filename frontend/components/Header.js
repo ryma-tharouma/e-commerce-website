@@ -114,7 +114,7 @@ export default function Header() {
           Active Bids
         </Link>
 
-        <Link href="/My_Bids" className="py-2 text-[#00060b] hover:text-[#D4AF37] text-xs font-[Georgia]">
+        <Link href="/Bids" className="py-2 text-[#00060b] hover:text-[#D4AF37] text-xs font-[Georgia]">
           View My Bids
         </Link>
       </div>
