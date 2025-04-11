@@ -48,6 +48,12 @@ INSTALLED_APPS = [
     'rest_framework',
     # Notre application panier et paiement
     'cart',
+    # les encheres 
+    "Auction_English",
+    "Auction_Sealed",
+    "Auction_Combinatoire",
+    
+    'django_q',
 ]
 
 MIDDLEWARE = [
@@ -185,3 +191,18 @@ CORS_ALLOW_CREDENTIALS = True  # Autoriser les cookies et tokens
 # CORS_ALLOW_METHODS = ['GET', 'POST', 'PUT', 'DELETE', 'HEAD']
 # SESSION_SAVE_EVERY_REQUEST = True  # Ne pas recréer la session à chaque requête
 # SESSION_COOKIE_DOMAIN = '127.0.0.1'
+
+
+
+
+# Django-Q configuration
+Q_CLUSTER = {
+    'name': 'AuctionNotifier',
+    'workers': 4,
+    'timeout': 60,
+    'retry': 120,
+    'queue_limit': 50,
+    'bulk': 10,
+    'orm': 'default',  # Uses Django's database as broker
+}
+

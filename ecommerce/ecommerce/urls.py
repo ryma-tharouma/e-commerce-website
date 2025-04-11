@@ -21,4 +21,8 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/cart/', include('cart.urls')),  # On inclut les URLs de l'application "cart"
 
+    path('Auction_English/', include('Auction_English.urls')),
+    path('Auction_Sealed/', include('Auction_Sealed.urls')),
+    path('Auction_Combinatoire/', include('Auction_Combinatoire.urls')),
+
 ]
