@@ -54,6 +54,7 @@ INSTALLED_APPS = [
     "Auction_Combinatoire",
     
     'django_q',
+    'inventory'
 ]
 
 MIDDLEWARE = [

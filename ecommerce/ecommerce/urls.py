@@ -24,5 +24,6 @@ urlpatterns = [
     path('Auction_English/', include('Auction_English.urls')),
     path('Auction_Sealed/', include('Auction_Sealed.urls')),
     path('Auction_Combinatoire/', include('Auction_Combinatoire.urls')),
+    path('inventory/', include('inventory.urls')),
 
 ]

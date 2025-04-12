@@ -1,0 +1,28 @@
+Metadata-Version: 2.4
+Name: PuLP
+Version: 3.1.1
+Summary: PuLP is an LP modeler written in python. PuLP can generate MPS or LP files and call GLPK, COIN CLP/CBC, CPLEX, and GUROBI to solve linear problems.
+Author: J.S. Roy
+Author-email: "S.A. Mitchell" <pulp@stuartmitchell.com>, Franco Peschiera <pchtsp@gmail.com>
+Maintainer-email: Franco Peschiera <pchtsp@gmail.com>
+License: MIT
+Project-URL: source, https://github.com/coin-or/pulp
+Project-URL: download, https://github.com/coin-or/pulp/archive/master.zip
+Keywords: Optimization,Linear Programming,Operations Research
+Classifier: Development Status :: 5 - Production/Stable
+Classifier: Environment :: Console
+Classifier: Intended Audience :: Science/Research
+Classifier: License :: OSI Approved :: MIT License
+Classifier: Natural Language :: English
+Classifier: Programming Language :: Python
+Classifier: Topic :: Scientific/Engineering :: Mathematics
+Requires-Python: >=3.7
+Description-Content-Type: text/markdown
+Provides-Extra: open-py
+Requires-Dist: cylp; extra == "open-py"
+Requires-Dist: highspy; extra == "open-py"
+Requires-Dist: pyscipopt; extra == "open-py"
+Provides-Extra: public-py
+Requires-Dist: gurobipy; extra == "public-py"
+Requires-Dist: coptpy; extra == "public-py"
+Requires-Dist: xpress; extra == "public-py"
