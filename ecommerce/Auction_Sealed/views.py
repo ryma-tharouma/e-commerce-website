@@ -105,16 +105,16 @@ def create_auction(request):
     return Response({"message": "Auction created successfully!", "auction_id": auction.id}, status=status.HTTP_201_CREATED)
 
 # Génération de la facture PDF
-def generate_invoice(auction):
+def generate_invoice(Bid):
     buffer = BytesIO()
     pdf = canvas.Canvas(buffer, pagesize=A4)
-    pdf.setTitle(f"Bill_{auction.id}.pdf")
+    pdf.setTitle(f"Bill_{Bid.id}.pdf")
 
     pdf.setFont("Helvetica-Bold", 16)
     pdf.drawString(200, 800, "PAYEMNT BILL")
     pdf.setFont("Helvetica", 12)
-    pdf.drawString(50, 770, f"ORDER ID: {auction.id}")
-    pdf.drawString(50, 750, f"Date: {auction.start_time.strftime('%Y-%m-%d %H:%M')}")
+    pdf.drawString(50, 770, f"ORDER ID: {Bid.id}")
+    pdf.drawString(50, 750, f"Date: {Bid.auction.start_time.strftime('%Y-%m-%d %H:%M')}")
 
     pdf.line(50, 740, 550, 740)
     pdf.setFont("Helvetica-Bold", 12)
@@ -123,14 +123,14 @@ def generate_invoice(auction):
 
     y = 700
     pdf.setFont("Helvetica", 12)
-    pdf.drawString(50, y, auction.title)
-    pdf.drawString(400, y, f"{auction.Winning_price:.2f}€")
+    pdf.drawString(50, y, Bid.auction.title)
+    pdf.drawString(400, y, f"{Bid.auction.Winning_price:.2f}€")
     y -= 20
     
     pdf.line(50, y - 10, 550, y - 10)
     pdf.setFont("Helvetica-Bold", 14)
     pdf.drawString(400, y - 30, "Total:")
-    pdf.drawString(500, y - 30, f"{auction.Winning_price:.2f}€")
+    pdf.drawString(500, y - 30, f"{Bid.auction.Winning_price:.2f}€")
     
     pdf.showPage()
     pdf.save()

@@ -27,7 +27,6 @@ from Auction_Combinatoire.models import CombinatorialBid
 # Stripe Configuration
 stripe.api_key = settings.STRIPE_SECRET_KEY
 
-
 class AuctionViewSet(viewsets.ModelViewSet):
     queryset = EnglishAuctionItem.objects.all()
     serializer_class = AuctionSerializer
@@ -118,16 +117,16 @@ def create_auction(request):
 
 
 # Génération de la facture PDF
-def generate_invoice(auction):
+def generate_invoice(Bid):
     buffer = BytesIO()
     pdf = canvas.Canvas(buffer, pagesize=A4)
-    pdf.setTitle(f"Bill_{auction.id}.pdf")
+    pdf.setTitle(f"Bill_{Bid.auction.id}.pdf")
 
     pdf.setFont("Helvetica-Bold", 16)
     pdf.drawString(200, 800, "PAYMENT BILL")
     pdf.setFont("Helvetica", 12)
-    pdf.drawString(50, 770, f"Odre ID: {auction.id}")
-    pdf.drawString(50, 750, f"Date: {auction.start_time.strftime('%Y-%m-%d %H:%M')}")
+    pdf.drawString(50, 770, f"Odre ID: {Bid.id}")
+    pdf.drawString(50, 750, f"Date: {Bid.auction.start_time.strftime('%Y-%m-%d %H:%M')}")
 
     pdf.line(50, 740, 550, 740)
     pdf.setFont("Helvetica-Bold", 12)
@@ -136,14 +135,14 @@ def generate_invoice(auction):
 
     y = 700
     pdf.setFont("Helvetica", 12)
-    pdf.drawString(50, y, auction.title)
-    pdf.drawString(400, y, f"{auction.current_price:.2f}€")
+    pdf.drawString(50, y, Bid.auction.title)
+    pdf.drawString(400, y, f"{Bid.auction.current_price:.2f}€")
     y -= 20
     
     pdf.line(50, y - 10, 550, y - 10)
     pdf.setFont("Helvetica-Bold", 14)
     pdf.drawString(400, y - 30, "Total:")
-    pdf.drawString(500, y - 30, f"{auction.current_price:.2f}€")
+    pdf.drawString(500, y - 30, f"{Bid.auction.current_price:.2f}€")
     
     pdf.showPage()
     pdf.save()
@@ -176,13 +175,13 @@ def get_user_bids(request, user_id):
     try:
         # Fetch the user from the database
         user = User.objects.get(id=user_id)
-        print("1")
+        print("get user bids ")
 
         # Fetch bids for the user from all relevant models
         english_bids = EnglishBid.objects.filter(bidder=user)
         sealed_bids = SealedBid.objects.filter(bidder=user)
         combinatorial_bids = CombinatorialBid.objects.filter(user=user)
-        print("1")
+        
         english_bids_data = []
         if english_bids :
             for bid in english_bids:
@@ -193,7 +192,7 @@ def get_user_bids(request, user_id):
                         'amount': float(bid.amount),
                         
                     })
-        print("1")
+        
 
         sealed_bids_data = []
         if sealed_bids :
@@ -205,7 +204,7 @@ def get_user_bids(request, user_id):
                         'amount': float(bid.amount),
                         
                     })
-        print("1")
+        
 
         Combinatorial_bids_data = []
         if combinatorial_bids :
@@ -221,7 +220,7 @@ def get_user_bids(request, user_id):
                         'products':product_list
                     })                            
 
-        print("1")
+        
 
         # Return the data as a JSON response with separate sections
 
@@ -234,3 +233,85 @@ def get_user_bids(request, user_id):
 
     except User.DoesNotExist:
         return JsonResponse({'error': 'User not found'}, status=404)
+
+
+from django.views.decorators.csrf import csrf_exempt
+@csrf_exempt
+@api_view(['GET'])
+def create_checkout_session(request,id ):
+    
+    try:
+        # print(EnglishBid.objects.all().values('id', 'product', 'quantity', 'session_id'))
+        print(f"payment function ")
+        print(stripe.api_key    )
+
+        session_id = request.session.session_key  # Récupérer l'ID de session
+        if not session_id:
+            request.session.create()
+            session_id = request.session.session_key
+            print(f"New session created: {session_id}")
+        else:
+            print(f"Existing session: {session_id}")
+
+        # Filtrer les articles du panier avec session_id au lieu de user
+        item = EnglishBid.objects.get(id=id)
+        print(f"Existing bid: {item}")
+
+        if not item:
+            return JsonResponse({'error': 'Votre panier est vide'}, status=400)
+
+        
+        # Génération du PDF après paiement
+        invoice_pdf = generate_invoice(item)
+
+        # Convertir les articles en format Stripe
+        line_items = [
+            {
+                'price_data': {
+                    'currency': 'usd',
+                    'product_data': {
+                        'name': item.auction.title,
+                        'description': item.auction.description
+                    },
+                    'unit_amount': int(item.auction.current_price ),
+                },
+                'quantity': 1,
+            }
+        ]
+
+        # Créer une session de paiement Stripe
+        checkout_session = stripe.checkout.Session.create(
+            payment_method_types=['card'],
+            line_items=line_items,
+            mode='payment',
+            # success_url=f'http://localhost:3000/Bids/',
+            success_url=f'http://127.0.0.1:8000/Auction_English/auctions/Bids/pay/success/{id}',
+            cancel_url='http://127.0.0.1:8000/Auction_English/auctions/Bids/pay/cancel/',
+
+        )
+
+  
+
+        return JsonResponse({'id': checkout_session.id, 'url': checkout_session.url})
+
+    except Exception as e:
+        return JsonResponse({'error': str(e)}, status=500)
+
+
+
+from django.http import HttpResponse, HttpResponseRedirect
+from django.shortcuts import get_object_or_404
+
+def success(request,order_id):
+    # order_id = request.GET.get('order_id')
+    if not order_id:
+        return HttpResponse("Order ID manquant", status=400)
+
+    order = get_object_or_404(EnglishBid, id=order_id)
+    invoice_pdf = generate_invoice(order)
+    send_invoice_email(order,"Nassabde227@gmail.com",  invoice_pdf)
+
+    response = HttpResponse(invoice_pdf.getvalue(), content_type='application/pdf')
+    response['Content-Disposition'] = f'attachment; filename="facture_{order.id}.pdf"'
+    response['X-Redirect'] = 'http://localhost:3000/Bids'  # Header personnalisé
+    return response
