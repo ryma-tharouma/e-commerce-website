@@ -1,6 +1,15 @@
 "use client"
 import { useState } from "react";
-import { registerUser } from "@/lib/api";
+import axios from "axios";
+
+const registerUser = async (userData) => {
+  try {
+    const response = await axios.post( `${process.env.NEXT_PUBLIC_API_URL}/users/register/`, userData);
+    return response.data;
+  } catch (err) {
+    throw new Error("Error registering user");
+  }
+};
 
 export default function Register() {
   const [username, setUsername] = useState("");
@@ -56,7 +65,7 @@ export default function Register() {
       </form>
 
       {success && <p className="text-green-500 mt-4">Registration successful!</p>}
-      {error && <p className="text-red-500 mt-4">{error}</p>}
+      {error && <p className="text-red-500 mt-4">{error.message || 'An error occurred'}</p>}
     </div>
   );
 }

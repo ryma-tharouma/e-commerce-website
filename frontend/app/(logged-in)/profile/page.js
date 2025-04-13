@@ -1,5 +1,20 @@
+"use client"
 import { useEffect, useState } from "react";
-import { getUserProfile } from "@/lib/api";
+import axios from "axios";
+
+const getUserProfile = async (token) => {
+  try {
+    const response = await axios.get( `${process.env.NEXT_PUBLIC_API_URL}/users/profile/`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    return response.data;
+  } catch (err) {
+    console.log("err ::: ", err);
+    throw new Error("Error fetching profile");
+  }
+};
 
 export default function Profile() {
   const [profile, setProfile] = useState(null);

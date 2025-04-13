@@ -1,6 +1,14 @@
 "use client"
 import { useState } from "react";
-import { loginUser } from "@/lib/api";
+import axios from "axios";
+const loginUser = async (credentials) => {
+  try {
+    const response = await axios.post( `${process.env.NEXT_PUBLIC_API_URL}/users/login/`, credentials);
+    return response.data;
+  } catch (err) {
+    throw new Error("Invalid credentials");
+  }
+};
 
 export default function Login() {
   const [username, setUsername] = useState("");
@@ -49,7 +57,7 @@ export default function Login() {
       </form>
 
       {success && <p className="text-green-500 mt-4">Login successful!</p>}
-      {error && <p className="text-red-500 mt-4">{error}</p>}
+      {error && <p className="text-red-500 mt-4">{error.message || 'Login failed'}</p>}
     </div>
   );
 }

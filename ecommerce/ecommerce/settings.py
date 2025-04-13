@@ -119,7 +119,7 @@ TIME_ZONE = 'UTC'
 USE_I18N = True
 
 USE_TZ = True
-APPEND_SLASH = False
+
 
 
 # Static files (CSS, JavaScript, Images)
@@ -165,11 +165,12 @@ SESSION_ENGINE = 'django.contrib.sessions.backends.db'  # 🔹 Sessions stockée
 #     "http://localhost:3000",  # Autorise Next.js
 #     #"http://127.0.0.1:3000",
 # ]
-CORS_ALLOW_ALL_ORIGINS = True  # or use CORS_ALLOWED_ORIGINS
+# CORS_ALLOW_ALL_ORIGINS = True  # or use CORS_ALLOWED_ORIGINS
 
 
 # CORS_ALLOW_ALL_ORIGINS = False  # Autoriser tous les domaines
 CORS_ALLOW_CREDENTIALS = True  # Autoriser les cookies et tokens
+CORS_ALLOW_ALL_ORIGINS = True
 
 SESSION_COOKIE_NAME = 'mycart_session'  # Nom du cookie de session
 SESSION_COOKIE_AGE = 1209600  # Durée de session : 1 jour
@@ -180,3 +181,4 @@ SESSION_COOKIE_SECURE = False  # 🔹 Mets `True` si HTTPS activé
 SESSION_COOKIE_SAMESITE = "None"  # 🔹 Autorise les requêtes cross-origin
 
 AUTH_USER_MODEL = 'users.CustomUser'
+APPEND_SLASH = False
