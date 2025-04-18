@@ -6,11 +6,21 @@ from rest_framework_simplejwt.tokens import RefreshToken
 from django.contrib.auth import authenticate
 from rest_framework.decorators import api_view, permission_classes
 
-from .serializers import RegisterSerializer, UserProfileSerializer
+from .serializers import RegisterSerializer, User, UserProfileSerializer
 
 # Register View
 class RegisterView(generics.CreateAPIView):
     serializer_class = RegisterSerializer
+    
+    def create(self, request, *args, **kwargs):
+        response = super().create(request, *args, **kwargs)
+        user = User.objects.get(username=request.data['username'])
+        refresh = RefreshToken.for_user(user)
+        response.data = {
+            'refresh': str(refresh),
+            'access': str(refresh.access_token),
+        }
+        return response
 
 # Login View
 class LoginView(APIView):
