@@ -29,55 +29,165 @@ export default function AuctionGrid() {
   const [auctions, setAuctions] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  
+  const [filteredAuctions, setFilteredAuctions] = useState([]);
+    
+  const [showModal, setShowModal] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [minPrice, setMinPrice] = useState("");
+  const [maxPrice, setMaxPrice] = useState("");
+  const [startDate, setStartDate] = useState("");
+  const [endDate, setEndDate] = useState("");
 
   useEffect(() => {
-    fetch("http://127.0.0.1:8000/Auction_English/auctions/")
-      .then((response) => response.json())
-      .then((data) => {
-        setAuctions(data);
-        setLoading(false);
+    fetch("http://127.0.0.1:8000/Auction_Sealed/auctions/")
+    .then((response) => response.json())
+    .then((data) => {
+      setAuctions(data);
+        setFilteredAuctions(data);
+          setLoading(false);
       })
       .catch((err) => {
         console.error("Erreur lors du chargement des enchères :", err);
         setError("Impossible de charger les enchères.");
         setLoading(false);
       });
-  }, []);
-
+    }, []);
+    
+    
+    const handleSearch = () => {
+      let filtered = auctions.filter(auction =>
+        auction.title.toLowerCase().includes(searchQuery.toLowerCase())
+      );
+  
+      if (minPrice) {
+        filtered = filtered.filter(auction => auction.starting_price >= parseFloat(minPrice));
+      }
+  
+      if (maxPrice) {
+        filtered = filtered.filter(auction => auction.starting_price <= parseFloat(maxPrice));
+      }
+  
+      if (startDate) {
+        filtered = filtered.filter(auction => new Date(auction.start_date) >= new Date(startDate));
+      }
+  
+      if (endDate) {
+        filtered = filtered.filter(auction => new Date(auction.end_date) <= new Date(endDate));
+      }
+  
+      setFilteredAuctions(filtered);
+      setShowModal(false);
+    };
+  
   if (loading) return <p className="text-center font-[Georgia] text-yellow-500 m-10">Loading auctions...</p>;
   if (error) return <p className="text-center font-[Georgia] text-yellow-500 m-10">{error}</p>;
   return (
-    <div className=" mx-auto px-19 py-8">
+    <div className="font-[Georgia]  relative mx-auto px-19 py-8">
       {/* the bar thing  */}
       <div className="flex justify-between items-center mb-8">
-        <button className="text-sm flex items-center gap-2">
+      <button
+          className="text-sm flex items-center gap-2 bg-gray-200 px-4 py-2 rounded hover:text-yellow-500"
+          onClick={() => setShowModal(true)}
+        >
           <span className="font-semibold">FILTER & SORT</span> ⚙️
         </button>
-        <div className="flex items-center gap-2">
+        {/* <div className="flex items-center gap-2">
           <span className="text-sm">ITEMS PER PAGE</span>
           <button className="px-2 py-1 bg-gray-300 hover:text-yellow-500">24</button>
           <button className="px-2 py-1 hover:text-yellow-500">30</button>
           <button className="px-2 py-1 hover:text-yellow-500">36</button>
-        </div>
+        </div> */}
       </div>
 
+      {showModal && (
+  <div className="absolute top-15 left-13 w-full h-full z-50">
+    {/* Overlay */}
+    <div className="absolute inset-0  "></div>
+
+    {/* Modal */}
+    <div className="absolute top-0 left-0 p-4">
+      <div className="bg-white p-6 shadow-lg w-96 border border-gray-300 rounded-none">
+        <h2 className="text-xl font-bold mb-4">Filter Auctions</h2>
+
+        <div className="mb-2 flex items-center">
+          <label className="w-40 text-sm font-medium">Title:</label>
+          <input
+            type="text"
+            placeholder="Search by title..."
+            className="w-full border px-3 py-2"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+          />
+        </div>
+
+        <div className="mb-2 flex items-center">
+          <label className="w-40 text-sm font-medium">Min Price:</label>
+          <input
+            type="number"
+            className="w-full border px-3 py-2"
+            value={minPrice}
+            onChange={(e) => setMinPrice(e.target.value)}
+          />
+        </div>
+
+        <div className="mb-2 flex items-center">
+          <label className="w-40 text-sm font-medium">Max Price:</label>
+          <input
+            type="number"
+            className="w-full border px-3 py-2"
+            value={maxPrice}
+            onChange={(e) => setMaxPrice(e.target.value)}
+          />
+        </div>
+
+        <div className="mb-2 flex items-center">
+          <label className="w-40 text-sm font-medium">Start Date:</label>
+          <input
+            type="date"
+            className="w-full border px-3 py-2"
+            value={startDate}
+            onChange={(e) => setStartDate(e.target.value)}
+          />
+        </div>
+
+        <div className="mb-4 flex items-center">
+          <label className="w-40 text-sm font-medium">End Date:</label>
+          <input
+            type="date"
+            className="w-full border px-3 py-2"
+            value={endDate}
+            onChange={(e) => setEndDate(e.target.value)}
+          />
+        </div>
+
+        <div className="flex justify-end gap-2">
+          <button onClick={() => setShowModal(false)} className="px-4 py-2 bg-gray-300 hover:bg-gray-400">Cancel</button>
+          <button onClick={handleSearch} className="px-4 py-2 bg-yellow-500 text-white hover:bg-yellow-600">Apply</button>
+        </div>
+      </div>
+    </div>
+  </div>
+)}
+
+
+
+        {filteredAuctions.length===0 &&(<div> <p className="text-center text-yellow-700 m-10">No Available Auctions</p></div>)}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {auctions.map((auction) => {
-          const defaultImg = `/imgs/Auction_English/${auction.id}/image1`;
-          const hoverImg = `/imgs/Auction_English/${auction.id}/image2`;
+        {filteredAuctions.map((auction) => {
+          const defaultImg = `/imgs/Auction_Sealed/${auction.id}/image1`;
+          const hoverImg = `/imgs/Auction_Sealed/${auction.id}/image2`;
           const extensions = ['.jpg', '.png', '.webp', '.jpeg'];
 
           // Fallback function to find first valid image
           const getValidImage = (base) => {
             for (const ext of extensions) {
               const imgPath = `${base}${ext}`;
-              // In a real app, you might check if the file exists via API or require.context
-              return imgPath; // Simplified for demo (actual implementation may vary)
+              
+              return imgPath;
             }
           };
           return(
-          <Link key={auction.id} href={`Auction_English/${auction.id}`} className="relative block bg-gray-200 overflow-hidden">
+          <Link key={auction.id} href={`Auction_Sealed/${auction.id}`} className="relative block bg-gray-200 overflow-hidden">
             <HoverImage defaultSrc={getValidImage(defaultImg)} hoverSrc={getValidImage(hoverImg)}/>
             <div className="mt-2 text-center p-2 bg-white">
               <p className="font-semibold text-gray-900">{auction.title}</p>

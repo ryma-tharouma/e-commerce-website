@@ -44,9 +44,9 @@ export default function Header() {
       <div className="container mx-auto flex justify-between items-center px-6">
         <nav className="flex justify-center space-x-6 font-semibold py-2 px-50">
 
-          <Link href="/jewelry" className="text-xs font-[Georgia] hover:text-[#D4AF37]">JEWELRY</Link>
-          <Link href="/library" className="text-xs font-[Georgia] hover:text-[#D4AF37]">LIBRARY</Link>
-          <Link href="/about" className="text-xs font-[Georgia] hover:text-[#D4AF37]">ABOUT US</Link>
+          <Link href="/jewelry" className="text-xs py-5 font-[Georgia] hover:text-[#D4AF37]">JEWELRY</Link>
+          <Link href="/library" className="text-xs py-5 font-[Georgia] hover:text-[#D4AF37]">LIBRARY</Link>
+          <Link href="/about" className="text-xs py-5 font-[Georgia] hover:text-[#D4AF37]">ABOUT US</Link>
 
 {/* Dropdown Group */}
 <div className="flex items-center justify-center ">
@@ -74,48 +74,48 @@ export default function Header() {
   </div>
       {/* First Column - English Auctions */}
       
-      <div className="px-10 py-2 flex flex-col w-1/4">
-        <p className="py-2 font-semibold text-sm text-gray-500">English Auctions</p>
-        <Link href="/Auction_English/form_page" className="py-2  text-[#00060b] hover:text-[#D4AF37] text-xs font-[Georgia]">
-          Add Auction
+      <div className="px-10 flex flex-col w-1/4 py-8 font-[Georgia]">
+        <p className="py-2 font-semibold text-sm text-gray-500 mb-2 ">English Auctions</p>
+        <Link href="/Auction_English/form_page" className="py-2  text-[#00060b] hover:text-[#D4AF37] text-xs ">
+          Create an English Auction
         </Link>
-        <Link href="/Auction_English" className="py-2  text-[#00060b] hover:text-[#D4AF37] text-xs font-[Georgia]">
-          See Auctions
+        <Link href="/Auction_English" className="py-2  text-[#00060b] hover:text-[#D4AF37] text-xs ">
+        View All English Auctions
         </Link>
       </div>
 
 
       {/* Second Column - Sealed Auctions */}
-      <div className="py-2 flex flex-col w-1/4">
-        <p className="py-2 font-semibold text-sm text-gray-500">Sealed Auctions</p>
-        <Link href="/Auction_Sealed/form_page" className="py-2 text-[#00060b] hover:text-[#D4AF37] text-xs font-[Georgia]">
-          Create Sealed Auction
+      <div className="py-8 flex flex-col w-1/4 font-[Georgia]">
+        <p className="py-2 font-semibold text-sm text-gray-500 mb-4">Sealed Auctions</p>
+        <Link href="/Auction_Sealed/form_page" className="py-2 text-[#00060b] hover:text-[#D4AF37] text-xs ">
+          Create a Sealed Auction
         </Link>
-        <Link href="/Auction_Sealed" className="py-2 text-[#00060b] hover:text-[#D4AF37] text-xs font-[Georgia]">
-          View Sealed Auctions
+        <Link href="/Auction_Sealed" className="py-2 text-[#00060b] hover:text-[#D4AF37] text-xs ">
+          View All Sealed Auctions
         </Link>
       </div>
 
       {/* Third Column - Combinatorial Auctions */}
-      <div className=" py-2 flex flex-col w-1/4">
-        <p className="py-2 font-semibold text-sm text-gray-500">Combinatorial Auctions</p>
-        <Link href="/Auction_Combinatorial/form_page" className="py-2 text-[#00060b] hover:text-[#D4AF37] text-xs font-[Georgia]">
-          Start Combinatorial Auction
+      <div className=" py-8 flex flex-col w-1/4 font-[Georgia]">
+        <p className="py-2 font-semibold text-sm text-gray-500 mb-4">Combinatorial Auctions</p>
+        <Link href="/Auction_Combinatorial/form_page" className="py-2 text-[#00060b] hover:text-[#D4AF37] text-xs">
+          Create a Combinatorial Auction
         </Link>
-        <Link href="/Auction_Combinatorial" className="py-2 text-[#00060b] hover:text-[#D4AF37] text-xs font-[Georgia]">
-          Browse Combinatorial Auctions
+        <Link href="/Auction_Combinatorial" className="py-2 text-[#00060b] hover:text-[#D4AF37] text-xs">
+        View All Combinatorial Auctions
         </Link>
       </div>
 
       {/* Final Column - My Bids */}
-      <div className="px-2 py-2 flex flex-col w-1/4">
-        <p className="py-2 font-semibold text-sm text-gray-500">My Bids</p>
-        <Link href="/My_Bids/active" className="py-2 text-[#00060b] hover:text-[#D4AF37] text-xs font-[Georgia]">
+      <div className="px-2 py-8 flex flex-col w-1/4 font-[Georgia] ml-2">
+        <p className="py-2 font-semibold text-sm text-gray-500 mb-4 ">My Bids</p>
+        <Link href="/My_Bids/active" className="py-2 text-[#00060b] hover:text-[#D4AF37] text-xs">
           Active Bids
         </Link>
 
-        <Link href="/Bids" className="py-2 text-[#00060b] hover:text-[#D4AF37] text-xs font-[Georgia]">
-          View My Bids
+        <Link href="/Bids" className="py-2 text-[#00060b] hover:text-[#D4AF37] text-xs">
+          View My Winning Bids
         </Link>
       </div>
 

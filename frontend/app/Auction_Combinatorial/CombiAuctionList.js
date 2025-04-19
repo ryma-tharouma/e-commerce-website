@@ -74,8 +74,8 @@ export default function AuctionGrid() {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {auctions.map((auction) => (
           
-          <Link key={auction.id} href={`Combinatorial/${auction.id}`} className="relative block bg-gray-200 overflow-hidden">
-            <HoverImage defaultSrc="/imgs/placeholder.jpg" hoverSrc="/imgs/hover.jpg" />
+          <Link key={auction.id} href={`Auction_Combinatorial/${auction.id}`} className="relative block bg-gray-200 overflow-hidden">
+            <HoverImage defaultSrc={`/imgs/Auction_Combinatoire/${auction.id}/image1.jpg`} hoverSrc={`/imgs/Auction_Combinatoire/${auction.id}/image2.jpg`} />
             <div className="mt-2 text-center p-2 bg-white">
               <p className="font-semibold text-gray-900">{auction.title}</p>
               <p className="text-gray-600">{auction.current_price ? `$${auction.current_price}` : "Price Upon Request"}</p>

@@ -118,7 +118,9 @@ def create_Product(request):
     )
     
     # Créer un dossier pour stocker les images 
-    product_folder = os.path.join(settings.MEDIA_ROOT, f'./frontend/public/imgs/Combinatorial_Auction/Products/{product.id}')
+    product_folder = os.path.abspath(
+        os.path.join(settings.BASE_DIR, '..', 'frontend', 'public', 'imgs', 'Auction_Combinatoire','Products', str(product.id))
+    )
     os.makedirs(product_folder, exist_ok=True)
     
     for index, image in enumerate(images, start=1):  # Start index from 1
@@ -207,8 +209,9 @@ def generate_invoice(auction,bid):
 
     y = 700
     pdf.setFont("Helvetica", 12)
-    for item in bid.Products.all():
-        pdf.drawString(50, y, item.product.name)
+    print("hi",bid.products)
+    for item in bid.products.all():
+        pdf.drawString(50, y, item.name)
         y -= 20
     
     pdf.line(50, y - 10, 550, y - 10)
@@ -247,3 +250,72 @@ def send_invoice_email(auction,bid,user_email , pdf_buffer):
         print(f"✅ Facture envoyée à {user_email}")
     except Exception as e:
         print(f"❌ Erreur d'envoi d'email: {e}")
+
+
+
+from django.views.decorators.csrf import csrf_exempt
+from django.shortcuts import get_object_or_404
+
+
+@csrf_exempt
+@api_view(['GET'])
+def create_checkout_session(request, id):
+    try:
+        print("✅ Starting payment session creation")
+        bid = CombinatorialBid.objects.get(id=id)
+        print(bid.products)
+
+        auction = bid.auction
+        products = bid.products.all()
+
+        if not products.exists():
+            return JsonResponse({'error': 'Aucun produit dans cette enchère.'}, status=400)
+
+        # Prix réparti également entre les produits
+        price_per_product = float(bid.amount) / products.count()
+        price_cents = int(price_per_product * 100)
+
+        line_items = []
+        for product in products:
+            print("hi",bid.amount)
+            line_items.append({
+                'price_data': {
+                    'currency': 'usd',
+                    'product_data': {
+                        'name': product.name,
+                        'description': product.description ,
+                    },
+                    'unit_amount':int(bid.amount)*100 ,
+                },
+                'quantity': 1,
+            })
+
+        checkout_session = stripe.checkout.Session.create(
+            payment_method_types=['card'],
+            line_items=line_items,
+            mode='payment',
+            success_url=f'http://127.0.0.1:8000/Auction_Combinatoire/auctions/Bids/pay/success/{bid.id}',
+            cancel_url='http://127.0.0.1:8000/Auction_Combinatoire/auctions/Bids/pay/cancel/',
+        )
+
+        return JsonResponse({'id': checkout_session.id, 'url': checkout_session.url})
+
+    except Exception as e:
+        return JsonResponse({'error': str(e)}, status=500)
+
+
+
+from django.http import HttpResponse
+from django.shortcuts import get_object_or_404
+def success(request, order_id):
+    if not order_id:
+        return HttpResponse("Order ID manquant", status=400)
+
+    bid = get_object_or_404(CombinatorialBid, id=order_id)
+    invoice_pdf = generate_invoice(bid.auction,bid)
+    send_invoice_email(bid.auction,bid, "Nassabde227@gmail.com", invoice_pdf)
+
+    response = HttpResponse(invoice_pdf.getvalue(), content_type='application/pdf')
+    response['Content-Disposition'] = f'attachment; filename="facture_combinatoire_{bid.id}.pdf"'
+    response['X-Redirect'] = 'http://localhost:3000/Bids'
+    return response

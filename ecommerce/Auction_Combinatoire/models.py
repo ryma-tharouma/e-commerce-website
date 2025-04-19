@@ -9,7 +9,7 @@ from Auction_English.models import get_admin_user
 
 from pulp import LpMaximize, LpProblem, LpVariable, lpSum
 from decimal import Decimal
-
+# Combinatorial_
 class Product(models.Model):
     name = models.CharField(max_length=255)
     description = models.TextField()

@@ -1,5 +1,5 @@
 from django.urls import path
-from .views import create_Product, get_products,create_Auction,AuctionDetailView,AuctionViewSet,get_products_auction,create_bid
+from .views import create_Product, get_products,create_Auction,AuctionDetailView,AuctionViewSet,get_products_auction,create_bid, create_checkout_session, success
 
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
@@ -18,6 +18,8 @@ urlpatterns = [
      path("auctions/create_auction", create_Auction, name="create_auction"),
      path("auctions/<int:auction_id>/bid/", create_bid, name="create_bid"),
      path("get_products", get_products, name="get_products"),
+    path("auctions/Bids/pay/<int:id>", create_checkout_session, name="comb_create_checkout_session"),
+     path("auctions/Bids/pay/success/<int:order_id>", success, name="comb_success"),
 
 
 ]

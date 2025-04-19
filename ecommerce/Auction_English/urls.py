@@ -11,8 +11,8 @@ urlpatterns = [
      path('auctions/<int:id>/', EnglishAuctionDetailView.as_view(), name='auction-detail'),
      path("auctions/<int:id>/bid/", place_bid, name="place_bid"),
      path("auctions/create_auction", create_auction, name="create_auction"),
-     path("auctions/Bids/pay/<int:id>", create_checkout_session, name="create_checkout_session"),
-     path("auctions/Bids/pay/success/<int:order_id>", success, name="success"),
+     path("auctions/Bids/pay/<int:id>", create_checkout_session, name="eng_create_checkout_session"),
+     path("auctions/Bids/pay/success/<int:order_id>", success, name="eng_success"),
 
 
 ]

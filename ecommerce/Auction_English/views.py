@@ -101,7 +101,9 @@ def create_auction(request):
     )
     
     # Créer un dossier pour stocker les images (ex: media/auctions/{auction.id}/)
-    auction_folder = os.path.join(settings.MEDIA_ROOT, f'./frontend/public/imgs/Auction_English/{auction.id}')
+    auction_folder = os.path.abspath(
+        os.path.join(settings.BASE_DIR, '..', 'frontend', 'public', 'imgs', 'Auction_English', str(auction.id))
+    )
     os.makedirs(auction_folder, exist_ok=True)
     
     for index, image in enumerate(images, start=1):  # Start index from 1
@@ -175,7 +177,7 @@ def get_user_bids(request, user_id):
     try:
         # Fetch the user from the database
         user = User.objects.get(id=user_id)
-        print("get user bids ")
+        
 
         # Fetch bids for the user from all relevant models
         english_bids = EnglishBid.objects.filter(bidder=user)
@@ -207,19 +209,18 @@ def get_user_bids(request, user_id):
         
 
         Combinatorial_bids_data = []
-        if combinatorial_bids :
+        if combinatorial_bids:
             for bid in combinatorial_bids:
-                product_list=[]
-                for product in bid.products:
+                product_list = []
+                for product in bid.products.all():  # ✅ FIX ICI
                     product_list.append(product.name)
                 Combinatorial_bids_data.append({
-                        'id': bid.id,
-                        'auction_id': bid.auction.id,
-                        'auction_title': bid.auction.title,
-                        'amount': float(bid.amount),
-                        'products':product_list
-                    })                            
-
+                    'id': bid.id,
+                    'auction_id': bid.auction.id,
+                    'auction_title': bid.auction.title,
+                    'amount': float(bid.amount),
+                    'products': product_list
+                })
         
 
         # Return the data as a JSON response with separate sections
@@ -304,6 +305,7 @@ from django.shortcuts import get_object_or_404
 
 def success(request,order_id):
     # order_id = request.GET.get('order_id')
+    
     if not order_id:
         return HttpResponse("Order ID manquant", status=400)
 

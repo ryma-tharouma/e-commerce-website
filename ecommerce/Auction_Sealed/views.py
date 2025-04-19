@@ -90,13 +90,14 @@ def create_auction(request):
     )
     
     # Créer un dossier pour stocker les images (ex: media/auctions/{auction.id}/)
-    auction_folder = os.path.join(settings.MEDIA_ROOT, f'./frontend/public/imgs/Sealed_Auction/{auction.id}')
+    auction_folder = os.path.abspath(
+        os.path.join(settings.BASE_DIR, '..', 'frontend', 'public', 'imgs', 'Auction_Sealed', str(auction.id))
+    )
     os.makedirs(auction_folder, exist_ok=True)
     
     for index, image in enumerate(images, start=1):  # Start index from 1
         fs = FileSystemStorage(location=auction_folder)
-        extension = os.path.splitext(image.name)[1]  # Get file extension (e.g., .jpg, .png)
-        filename = f"image{index}{extension}"  # Rename image (image1.jpg, image2.png, etc.)
+        filename = f"image{index}.jpg"  # Rename image (image1.jpg, image2.png, etc.)
         
         file_path = fs.save(filename, image)
         print(f"Saved: {file_path}")
@@ -156,3 +157,90 @@ def send_invoice_email(auction,user_email , pdf_buffer):
         print(f"✅ Facture envoyée à {user_email}")
     except Exception as e:
         print(f"❌ Erreur d'envoi d'email: {e}")
+
+
+
+
+from django.views.decorators.csrf import csrf_exempt
+from django.http import JsonResponse
+
+@csrf_exempt
+@api_view(['GET'])
+def create_checkout_session(request,id ):
+    
+    try:
+        # print(EnglishBid.objects.all().values('id', 'product', 'quantity', 'session_id'))
+        print(f"payment function ")
+        print(stripe.api_key    )
+
+        session_id = request.session.session_key  # Récupérer l'ID de session
+        if not session_id:
+            request.session.create()
+            session_id = request.session.session_key
+            print(f"New session created: {session_id}")
+        else:
+            print(f"Existing session: {session_id}")
+
+        # Filtrer les articles du panier avec session_id au lieu de user
+        item = SealedBid.objects.get(id=id)
+        print(f"Existing bid: {item}")
+
+        if not item:
+            return JsonResponse({'error': 'Votre panier est vide'}, status=400)
+
+        
+        # Génération du PDF après paiement
+        invoice_pdf = generate_invoice(item)
+
+        # Convertir les articles en format Stripe
+        line_items = [
+            {
+                'price_data': {
+                    'currency': 'usd',
+                    'product_data': {
+                        'name': item.auction.title,
+                        'description': item.auction.description
+                    },
+                    'unit_amount': int(item.amount ),
+                },
+                'quantity': 1,
+            }
+        ]
+
+        # Créer une session de paiement Stripe
+        checkout_session = stripe.checkout.Session.create(
+            payment_method_types=['card'],
+            line_items=line_items,
+            mode='payment',
+            # success_url=f'http://localhost:3000/Bids/',
+            success_url=f'http://127.0.0.1:8000/Auction_Sealed/auctions/Bids/pay/success/{id}',
+            cancel_url='http://127.0.0.1:8000/Auction_Sealed/auctions/Bids/pay/cancel/',
+
+        )
+
+  
+
+        return JsonResponse({'id': checkout_session.id, 'url': checkout_session.url})
+
+    except Exception as e:
+        return JsonResponse({'error': str(e)}, status=500)
+
+
+
+from django.http import HttpResponse, HttpResponseRedirect
+from django.shortcuts import get_object_or_404
+from django.shortcuts import redirect
+def success(request,order_id):
+    # order_id = request.GET.get('order_id')
+    if not order_id:
+        return HttpResponse("Order ID manquant", status=400)
+
+    order = get_object_or_404(SealedBid, id=order_id)
+    invoice_pdf = generate_invoice(order)
+    send_invoice_email(order,"Nassabde227@gmail.com",  invoice_pdf)
+
+    # response = HttpResponse(invoice_pdf.getvalue(), content_type='application/pdf')
+    # response['Content-Disposition'] = f'attachment; filename="facture_{order.id}.pdf"'
+    # response['X-Redirect'] = 'http://localhost:3000/Bids'  # Header personnalisé
+    # return response
+    return redirect('http://localhost:3000/Bids')
