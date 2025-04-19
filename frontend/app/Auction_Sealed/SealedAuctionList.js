@@ -99,75 +99,74 @@ export default function AuctionGrid() {
         </div> */}
       </div>
 
-      {showModal && (
-  <div className="absolute top-15 left-13 w-full h-full z-50">
-    {/* Overlay */}
-    <div className="absolute inset-0  "></div>
+            {showModal && (
+        <div className="absolute top-0 left-0 w-full h-full z-50 bg-[rgba(229,231,235,0.55)]">
 
-    {/* Modal */}
-    <div className="absolute top-0 left-0 p-4">
-      <div className="bg-white p-6 shadow-lg w-96 border border-gray-300 rounded-none">
-        <h2 className="text-xl font-bold mb-4">Filter Auctions</h2>
+          {/* Modal */}
+          <div className="absolute top-0 left-0 p-4 ">
+            <div className="bg-white p-6 shadow-lg w-96 border border-gray-300 rounded-none">
+              <h2 className="text-xl font-bold mb-4">Filter Auctions</h2>
 
-        <div className="mb-2 flex items-center">
-          <label className="w-40 text-sm font-medium">Title:</label>
-          <input
-            type="text"
-            placeholder="Search by title..."
-            className="w-full border px-3 py-2"
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-          />
+              <div className="mb-2 flex items-center">
+                <label className="w-40 text-sm font-medium">Title:</label>
+                <input
+                  type="text"
+                  placeholder="Search by title..."
+                  className="w-full border px-3 py-2"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                />
+              </div>
+
+              <div className="mb-2 flex items-center">
+                <label className="w-40 text-sm font-medium">Min Price:</label>
+                <input
+                  type="number"
+                  className="w-full border px-3 py-2"
+                  value={minPrice}
+                  onChange={(e) => setMinPrice(e.target.value)}
+                />
+              </div>
+
+              <div className="mb-2 flex items-center">
+                <label className="w-40 text-sm font-medium">Max Price:</label>
+                <input
+                  type="number"
+                  className="w-full border px-3 py-2"
+                  value={maxPrice}
+                  onChange={(e) => setMaxPrice(e.target.value)}
+                />
+              </div>
+
+              <div className="mb-2 flex items-center">
+                <label className="w-40 text-sm font-medium">Start Date:</label>
+                <input
+                  type="date"
+                  className="w-full border px-3 py-2"
+                  value={startDate}
+                  onChange={(e) => setStartDate(e.target.value)}
+                />
+              </div>
+
+              <div className="mb-4 flex items-center">
+                <label className="w-40 text-sm font-medium">End Date:</label>
+                <input
+                  type="date"
+                  className="w-full border px-3 py-2"
+                  value={endDate}
+                  onChange={(e) => setEndDate(e.target.value)}
+                />
+              </div>
+
+              <div className="flex justify-end gap-2">
+                <button onClick={() => setShowModal(false)} className="px-4 py-2 bg-gray-300 hover:bg-gray-400">Cancel</button>
+                <button onClick={handleSearch} className="px-4 py-2 bg-yellow-500 text-white hover:bg-yellow-600">Apply</button>
+              </div>
+            </div>
+          </div>
         </div>
+      )}
 
-        <div className="mb-2 flex items-center">
-          <label className="w-40 text-sm font-medium">Min Price:</label>
-          <input
-            type="number"
-            className="w-full border px-3 py-2"
-            value={minPrice}
-            onChange={(e) => setMinPrice(e.target.value)}
-          />
-        </div>
-
-        <div className="mb-2 flex items-center">
-          <label className="w-40 text-sm font-medium">Max Price:</label>
-          <input
-            type="number"
-            className="w-full border px-3 py-2"
-            value={maxPrice}
-            onChange={(e) => setMaxPrice(e.target.value)}
-          />
-        </div>
-
-        <div className="mb-2 flex items-center">
-          <label className="w-40 text-sm font-medium">Start Date:</label>
-          <input
-            type="date"
-            className="w-full border px-3 py-2"
-            value={startDate}
-            onChange={(e) => setStartDate(e.target.value)}
-          />
-        </div>
-
-        <div className="mb-4 flex items-center">
-          <label className="w-40 text-sm font-medium">End Date:</label>
-          <input
-            type="date"
-            className="w-full border px-3 py-2"
-            value={endDate}
-            onChange={(e) => setEndDate(e.target.value)}
-          />
-        </div>
-
-        <div className="flex justify-end gap-2">
-          <button onClick={() => setShowModal(false)} className="px-4 py-2 bg-gray-300 hover:bg-gray-400">Cancel</button>
-          <button onClick={handleSearch} className="px-4 py-2 bg-yellow-500 text-white hover:bg-yellow-600">Apply</button>
-        </div>
-      </div>
-    </div>
-  </div>
-)}
 
 
 
