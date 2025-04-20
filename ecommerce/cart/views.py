@@ -1,7 +1,7 @@
 from django.shortcuts import render, get_object_or_404
 from django.conf import settings
 from django.http import JsonResponse, FileResponse
-from rest_framework.decorators import api_view
+from rest_framework.decorators import api_view, action
 from rest_framework.response import Response
 import stripe
 from io import BytesIO
@@ -14,6 +14,8 @@ from .models import CartItem, Product, Order, OrderItem
 from django.views.decorators.csrf import csrf_exempt
 from django.http import HttpResponse
 from django.http import HttpResponseRedirect
+from rest_framework import viewsets, status
+from .serializers import ProductSerializer
 
 
 
@@ -52,7 +54,7 @@ def list_cart(session_id):
             'name': item.product.name,
             'price': float(item.product.price),
             'quantity': item.quantity,
-            'image' : item.product.image,
+            'image': item.product.image,
             'subtotal': float(item.quantity * item.product.price)
         }
         for item in cart_items
@@ -280,6 +282,51 @@ def send_invoice_email(user_email, order, pdf_buffer):
         print(f"✅ Facture envoyée à {user_email}")
     except Exception as e:
         print(f"❌ Erreur d'envoi d'email: {e}")
+
+
+class ProductViewSet(viewsets.ModelViewSet):
+    queryset = Product.objects.all()
+    serializer_class = ProductSerializer
+
+    def create(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        product = serializer.save()
+        
+        # Handle multiple images
+        images = request.FILES.getlist('images')
+        for i, image in enumerate(images):
+            ProductImage.objects.create(
+                product=product,
+                image=image,
+                is_primary=(i == 0)  # First image is primary
+            )
+        
+        headers = self.get_success_headers(serializer.data)
+        return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
+
+    def update(self, request, *args, **kwargs):
+        partial = kwargs.pop('partial', False)
+        instance = self.get_object()
+        serializer = self.get_serializer(instance, data=request.data, partial=partial)
+        serializer.is_valid(raise_exception=True)
+        self.perform_update(serializer)
+
+        # Handle image updates
+        if 'images' in request.FILES:
+            # Delete existing images
+            instance.images.all().delete()
+            
+            # Add new images
+            images = request.FILES.getlist('images')
+            for i, image in enumerate(images):
+                ProductImage.objects.create(
+                    product=instance,
+                    image=image,
+                    is_primary=(i == 0)
+                )
+
+        return Response(serializer.data)
 
 
 
