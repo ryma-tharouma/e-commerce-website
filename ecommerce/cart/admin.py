@@ -8,7 +8,6 @@ class ProductAdmin(admin.ModelAdmin):
     search_fields = ('name', 'description')
 
 # Register your models here.
-
 admin.site.register(CartItem)
 admin.site.register(Order)
 admin.site.register(OrderItem)
