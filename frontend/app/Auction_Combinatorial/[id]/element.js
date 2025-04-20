@@ -83,7 +83,7 @@ export default function ProductGrid() {
     const fetchImages = async () => {
         const imgList = [];
         for (let i = 1; i <= 10; i++) { // Assume max 10 images
-            const imgPath = `/imgs/Combinatorial_Auction/Products/${selectedProduct.id}/image${i}.jpg`;
+            const imgPath = `/imgs/Auction_Combinatoire/Products/${selectedProduct.id}/image${i}.jpg`;
             const res = await fetch(imgPath, { method: "HEAD" });
 
             if (res.ok) imgList.push(imgPath);
@@ -225,8 +225,8 @@ const handleSelection = (product) => {
 
         {products.map((product) => {
           
-          const defaultImg = `/imgs/Combinatorial_Auction/Products/${product.id}/image1.jpg`;
-          const hoverImg = `/imgs/Combinatorial_Auction/Products/${product.id}/image2.jpg`;
+          const defaultImg = `/imgs/Auction_Combinatoire/Products/${product.id}/image1.jpg`;
+          const hoverImg = `/imgs/Auction_Combinatoire/Products/${product.id}/image2.jpg`;
           return(
             <div key={product.id}>
           <div key={product.id} className="relative block bg-gray-200 overflow-hidden" 

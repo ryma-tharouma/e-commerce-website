@@ -16,7 +16,11 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path,include
+<<<<<<< HEAD
 from rest_framework_simplejwt.views import TokenRefreshView 
+=======
+from Auction_English.views import get_user_bids,success
+>>>>>>> 7afc00db7d5ac7115dbb2cdbbf80cc4880008c32
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/cart/', include('cart.urls')),  # On inclut les URLs de l'application "cart"
@@ -25,4 +29,11 @@ urlpatterns = [
     path('Auction_English/', include('Auction_English.urls')),
     path('Auction_Sealed/', include('Auction_Sealed.urls')),
     path('Auction_Combinatoire/', include('Auction_Combinatoire.urls')),
+<<<<<<< HEAD
+=======
+    path('Bids/<int:user_id>',get_user_bids, name="get_user_bids" ),
+    path('Bids/pay/success/<int:order_id>',success, name="success" ),
+    
+
+>>>>>>> 7afc00db7d5ac7115dbb2cdbbf80cc4880008c32
 ]

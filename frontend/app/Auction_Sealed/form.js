@@ -31,7 +31,7 @@ export default function CreateAuction() {
     images.forEach((image) => form.append("images", image));
 
     try {
-      const response = await fetch("http://127.0.0.1:8000/Auction_English/auctions/create_auction", {
+      const response = await fetch("http://127.0.0.1:8000/Auction_Sealed/auctions/create_auction", {
         method: "POST",
         body: form,
       });

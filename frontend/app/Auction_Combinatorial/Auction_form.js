@@ -11,7 +11,10 @@ export default function CreateAuction() {
     end_time: "",
     products: [],
   });
-  
+  const handleImageChange = (e) => {
+    setImages([...e.target.files]);
+  };
+
   const [images, setImages] = useState([]);
   const [error, setError] = useState("");
   const [products, setProducts] = useState([]); // Products from backend
@@ -43,6 +46,7 @@ export default function CreateAuction() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    images.forEach((image) => form.append("images", image));
     if (selectedProducts.length === 0) {
       setError("Please select at least one product.");
       return;
@@ -71,7 +75,7 @@ export default function CreateAuction() {
   };
 
   return (
-    <div className="min-h-screen p-5 bg-gray-100">
+    <div className="min-h-screen p-5 bg-gray-100 font-[Georgia]">
     <div className="max-w-2xl mx-auto p-8 bg-white shadow-lg ">
       {/* Title */}
       <h2 className="text-3xl font-[Georgia] text-center mb-2">Create an Auction</h2>
@@ -80,7 +84,7 @@ export default function CreateAuction() {
       {error && <p className="text-red-500 text-center">{error}</p>}
 
       {/* Form */}
-      <form onSubmit={handleSubmit} className="space-y-4">
+      <form onSubmit={handleSubmit} className="space-y-4 font-[Georgia]">
         <label className="block text-gray-700 text-sm font-[Georgia] ">Title</label>
           <input type="text" name="title" placeholder="Title*" required className="border w-full p-3 text-sm" onChange={handleChange} />
         
@@ -106,7 +110,7 @@ export default function CreateAuction() {
         </div> */}
 
 {/* Select Products Button */}
-<button button type="button"  onClick={() => setShowModal(true)} className="bg-gray-100 border border-yellow-600 text-yellow-600 py-2 px-4 w-full">
+<button button type="button"  onClick={() => setShowModal(true)} className="bg-gray-100 font-[Georgia] border border-yellow-600 text-yellow-600 py-2 px-4 w-full">
           Select Products
         </button>
 
@@ -125,12 +129,16 @@ export default function CreateAuction() {
                       </button>
 
                       {/* Title */}
-                      <h3 className="text-lg font-semibold mb-4 text-center">Select Products</h3>
+                      <h3 className="text-lg font-semibold mb-4 text-center font-[Georgia]">Select Products</h3>
 
                       {/* Product Grid */}
+                      {products.length===0 &&(<div>
+                      <h1 className="text-lg font-semibold mb-4 text-yellow-500 text-center font-[Georgia]">No Products Created</h1>
+
+                      </div>)}
                       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 overflow-y-auto px-2">
                         {products.map((product) => {
-                          const defaultImg = `/imgs/Combinatorial_Auction/Products/${product.id}/image1.jpg`;
+                          const defaultImg = `/imgs/Auction_Combinatoire/Products/${product.id}/image1.jpg`;
                           const isSelected = selectedProducts.includes(product.id);
 
                           return (
@@ -151,7 +159,7 @@ export default function CreateAuction() {
                               </div>
 
                               {/* Product Info */}
-                              <div className="p-3 bg-white text-center">
+                              <div className="p-3 bg-white text-center font-[Georgia]">
                                 <p className="font-semibold text-gray-900">{product.name}</p>
                               </div>
                             </div>
@@ -174,6 +182,9 @@ export default function CreateAuction() {
         
         
         
+        {/* Image Upload */}
+        <label className="block text-gray-700 text-sm font-[Georgia] font-semibold ">Upload Images</label>
+                <input type="file" multiple accept="image/*" className="border w-full p-2" onChange={handleImageChange} />
 
         {/* Submit Button */}
         <button type="submit" className="bg-yellow-600 text-white py-3 w-full font-[Georgia] text-sm font-semibold hover:bg-yellow-700">
