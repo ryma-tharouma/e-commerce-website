@@ -207,3 +207,6 @@ Q_CLUSTER = {
     'orm': 'default',  # Uses Django's database as broker
 }
 
+CSRF_TRUSTED_ORIGINS = [
+    "http://localhost:3000", 
+]

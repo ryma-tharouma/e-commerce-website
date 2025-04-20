@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import Image from "next/image";
 import { useParams, useRouter } from "next/navigation";
+import axios from "axios";
 
 export default function ProductDetails() {
   const { id } = useParams(); // Retrieve product ID from route
@@ -33,30 +34,31 @@ export default function ProductDetails() {
     fetchProduct();
   }, [id]);
 
-  const handleAddToCart = async () => {
-    if (!isLoggedIn) {
-      router.push("/auth/login"); // Redirect to login page (set your actual route)
-      return;
-    }
+  // Function to add to cart
+  const API_URL = "http://localhost:8000/api/cart";
 
+  const api = axios.create({
+    baseURL: API_URL,
+    withCredentials: true,
+    headers: {
+      Accept: "application/json",
+      "Content-Type": "application/json",
+    },
+  });
+
+  const addToCart = async (productId) => {
     try {
-      const response = await fetch(
-        `http://127.0.0.1:8000/api/cart/add/${product.id}/`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            // Add auth header here when ready (e.g. Authorization: `Bearer ${token}`)
-          },
-        }
-      );
-
-      if (!response.ok) throw new Error("Failed to add to cart");
-      alert("Product added to cart!");
+      console.log("Adding product to cart:", productId);
+      await api.post(`/add/${productId}/`, { quantity: 1 });
+      console.log("Product added to cart!");
     } catch (err) {
-      console.error(err);
-      alert("Something went wrong. Please try again.");
+      console.error("Error adding to cart:", err.message || err);
+      alert("Failed to add product to cart. Please try again.");
     }
+  };
+
+  const handleAddToCart = () => {
+    addToCart(product.id);
   };
 
   if (error)
