@@ -1,0 +1,27 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Facture #{{ auction.id }}</title>
+</head>
+<body>
+    <h1>Merci pour votre commande !</h1>
+    <p>Voici les détails de votre commande #{{ auction.id }} :</p>
+    
+    <table>
+        <tr>
+            <th>Produit</th>
+        </tr>
+        {% for item in bid.products.all %}
+        <tr>
+            <td>{{ item.product.name }}</td>
+        </tr>
+        {% endfor %}
+    </table>
+    
+    <p><strong>Total : {{ bid.amount }} €</strong></p>
+    
+    <p>Votre facture est jointe à cet email.</p>
+</body>
+</html>

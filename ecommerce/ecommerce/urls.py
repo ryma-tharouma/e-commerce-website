@@ -22,4 +22,7 @@ urlpatterns = [
     path('api/cart/', include('cart.urls')),  # On inclut les URLs de l'application "cart"
     path('api/users/', include('users.urls')),
      path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
+    path('Auction_English/', include('Auction_English.urls')),
+    path('Auction_Sealed/', include('Auction_Sealed.urls')),
+    path('Auction_Combinatoire/', include('Auction_Combinatoire.urls')),
 ]

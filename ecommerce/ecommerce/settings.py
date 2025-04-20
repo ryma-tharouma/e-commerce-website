@@ -12,6 +12,11 @@ https://docs.djangoproject.com/en/4.2/ref/settings/
 
 from pathlib import Path
 import stripe
+import os
+from dotenv import load_dotenv
+
+# Charge les variables d'environnement
+load_dotenv()
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -35,27 +40,33 @@ INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
+    'corsheaders',
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'rest_framework',
     'rest_framework_simplejwt.token_blacklist',
-    'corsheaders',
+    # les encheres 
+    "Auction_English",
+    "Auction_Sealed",
+    "Auction_Combinatoire",
+    
+    'django_q',
     'cart',
     'users',
 
 ]
 
 MIDDLEWARE = [
-    'django.middleware.security.SecurityMiddleware',
-    'django.contrib.sessions.middleware.SessionMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.common.CommonMiddleware',
+    'django.middleware.security.SecurityMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
+    'django.contrib.sessions.middleware.SessionMiddleware',
+    'cart.middleware.SessionPersistenceMiddleware', 
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'corsheaders.middleware.CorsMiddleware',
-    'django.middleware.common.CommonMiddleware',
 ]
 
 ROOT_URLCONF = 'ecommerce.urls'
@@ -63,7 +74,7 @@ ROOT_URLCONF = 'ecommerce.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [os.path.join(BASE_DIR, 'templates')],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -75,6 +86,7 @@ TEMPLATES = [
         },
     },
 ]
+
 
 WSGI_APPLICATION = 'ecommerce.wsgi.application'
 
@@ -134,17 +146,18 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 
 
-STRIPE_PUBLIC_KEY = "pk_test_51Qv3DpKplZCZmRlVlNaq7XivaEK2WNudSf21raV8CmY893eilcfYeOZPpKPzsRAonKMeoMhlEqYhDuyMzktY9fIo00qb8Q5hBi"
-STRIPE_SECRET_KEY = "sk_test_51Qv3DpKplZCZmRlVmjZJS2P6gU0i9CItTpriHnv9wSRaIcO4w5Vd0bAdrku7AsLup1IZzlGDdSD75I45CgR2yDtb00KFx0VmIw"
-
+# Stripe
+STRIPE_PUBLIC_KEY = os.getenv('STRIPE_PUBLIC_KEY')
+STRIPE_SECRET_KEY = os.getenv('STRIPE_SECRET_KEY')
 stripe.api_key = STRIPE_SECRET_KEY
 
+# Email
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-EMAIL_HOST = 'smtp.gmail.com'  # Utilise le serveur SMTP de Gmail
-EMAIL_PORT = 587
-EMAIL_USE_TLS = True
-EMAIL_HOST_USER = 'ferielakm@gmail.com'  # jpeux faire email de l'entreprise à revoir
-EMAIL_HOST_PASSWORD = 'iwuz oymp slkf tkek'  # Active "Accès aux apps moins sécurisées" sur ton compte Google
+EMAIL_HOST = os.getenv('EMAIL_HOST')
+EMAIL_PORT = os.getenv('EMAIL_PORT')
+EMAIL_USE_TLS = os.getenv('EMAIL_USE_TLS') == 'True'  # Conversion en booléen
+EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER')
+EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD')
 
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': [
@@ -159,26 +172,42 @@ REST_FRAMEWORK = {
     ]
 }
 
-SESSION_ENGINE = 'django.contrib.sessions.backends.db'  # 🔹 Sessions stockées en base de données
+CORS_ALLOWED_ORIGINS = [
+    "http://localhost:3000",  # Autorise Next.js
+    #"http://127.0.0.1:3000",
+]
 
-# CORS_ALLOWED_ORIGINS = [
-#     "http://localhost:3000",  # Autorise Next.js
-#     #"http://127.0.0.1:3000",
-# ]
-# CORS_ALLOW_ALL_ORIGINS = True  # or use CORS_ALLOWED_ORIGINS
-
-
-# CORS_ALLOW_ALL_ORIGINS = False  # Autoriser tous les domaines
+CORS_ALLOW_ALL_ORIGINS = False  # Autoriser tous les domaines
 CORS_ALLOW_CREDENTIALS = True  # Autoriser les cookies et tokens
 CORS_ALLOW_ALL_ORIGINS = True
 
-SESSION_COOKIE_NAME = 'mycart_session'  # Nom du cookie de session
-SESSION_COOKIE_AGE = 1209600  # Durée de session : 1 jour
-SESSION_SAVE_EVERY_REQUEST = True  # Sauvegarde la session à chaque requête
-SESSION_EXPIRE_AT_BROWSER_CLOSE = False  # Ne pas supprimer à la fermeture du navigateur
-SESSION_COOKIE_HTTPONLY = True  # 🔹 Empêche l'accès JS aux cookies (sécurité)
-SESSION_COOKIE_SECURE = False  # 🔹 Mets `True` si HTTPS activé
-SESSION_COOKIE_SAMESITE = "None"  # 🔹 Autorise les requêtes cross-origin
+# SESSION_COOKIE_NAME = 'sessionid'  # Nom du cookie de session
+# SESSION_COOKIE_AGE = 3600 * 24 * 7   # Durée de session : 1 jour
+# #SESSION_SAVE_EVERY_REQUEST = True  # Sauvegarde la session à chaque requête
+# SESSION_EXPIRE_AT_BROWSER_CLOSE = False  # Ne pas supprimer à la fermeture du navigateur
+# SESSION_COOKIE_HTTPONLY = True  # 🔹 Empêche l'accès JS aux cookies (sécurité)
+# SESSION_COOKIE_SECURE = False  # 🔹 Mets `True` si HTTPS activé
+# #SESSION_COOKIE_SAMESITE = "None"  # 🔹 Autorise les requêtes cross-origin
+# SESSION_COOKIE_SAMESITE = 'Lax'
+# CORS_ORIGIN_ALLOW_ALL = True  # Ou spécifiez les origines autorisées
+# CORS_ALLOW_METHODS = ['GET', 'POST', 'PUT', 'DELETE', 'HEAD']
+# SESSION_SAVE_EVERY_REQUEST = True  # Ne pas recréer la session à chaque requête
+# SESSION_COOKIE_DOMAIN = '127.0.0.1'
+
+
+
+
+# Django-Q configuration
+Q_CLUSTER = {
+    'name': 'AuctionNotifier',
+    'workers': 4,
+    'timeout': 60,
+    'retry': 120,
+    'queue_limit': 50,
+    'bulk': 10,
+    'orm': 'default',  # Uses Django's database as broker
+}
+
 
 AUTH_USER_MODEL = 'users.CustomUser'
 APPEND_SLASH = False

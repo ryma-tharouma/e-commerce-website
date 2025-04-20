@@ -1,0 +1,29 @@
+<!-- cart/templates/cart/emails/invoice_email.html -->
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Facture #{{ auction.id }}</title>
+</head>
+<body>
+    <h1>Merci pour votre commande !</h1>
+    <p>Voici les détails de votre commande #{{ auction.id }} :</p>
+    
+    <table>
+        <tr>
+            <th>Titre</th>
+            <th>Prix</th>
+        </tr>
+        
+        <tr>
+            <td>{{ auction.title }}</td>
+            <td>{{ auction.Winning_price }}</td>
+        </tr>
+        
+    </table>
+    
+    <p><strong>Total : {{ auction.Winning_price }} €</strong></p>
+    
+    <p>Votre facture est jointe à cet email.</p>
+</body>
+</html>

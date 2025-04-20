@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="csrf-token" content="{{ csrf_token }}">
+    <title>Create Auction</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f8f8f8;
+            text-align: center;
+        }
+        .container {
+            max-width: 400px;
+            margin: auto;
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            margin-top: 20px;
+        }
+        input, select, button {
+            width: 100%;
+            padding: 10px;
+            margin: 5px 0;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+        button {
+            background-color: #28a745;
+            color: white;
+            font-size: 16px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #218838;
+        }
+    </style>
+</head>
+<body>
+    <h1>Create Auction</h1>
+    
+    <div class="container">
+        <h3>Create Product</h3>
+        <input type="text" id="product-name" placeholder="Product Name">
+        <input type="text" id="product-description" placeholder="Description">
+        <button onclick="createProduct()">Create Product</button>
+    </div>
+    
+    <div class="container">
+        <h3>Create Auction</h3>
+        <input type="text" id="title" placeholder="Auction title">
+        <input type="text" id="disc" placeholder=" Discription ">
+
+        <select id="product-list">
+            <option value="">Select a product</option>
+        </select>
+        <input type="datetime-local" id="start-time">
+        <input type="datetime-local" id="end-time">
+        <input type="number" id="starting-price" placeholder="Starting Price">
+        <button onclick="createAuction()">Create Auction</button>
+    </div>
+
+    <script>
+        function getCSRFToken() {
+            let csrfToken = null;
+            const cookies = document.cookie.split(";");
+            for (let cookie of cookies) {
+                let [name, value] = cookie.trim().split("=");
+                if (name === "csrftoken") {
+                    csrfToken = value;
+                }
+            }
+            return csrfToken;
+        }
+        async function fetchProducts() {
+            const response = await fetch('http://127.0.0.1:8000/English_Auction/api/products/');
+            const products = await response.json();
+            const productList = document.getElementById('product-list');
+            productList.innerHTML = '<option value="">Select a product</option>';
+            products.forEach(product => {
+                const option = document.createElement('option');
+                option.value = product.id;
+                option.textContent = product.name;
+                productList.appendChild(option);
+            });
+        }
+
+        async function createProduct() {
+            const name = document.getElementById('product-name').value;
+            const description = document.getElementById('product-description').value;
+            
+            const csrfToken = getCSRFToken(); 
+            
+            const response = await fetch('http://127.0.0.1:8000/English_Auction/api/products/create/', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' ,
+                "X-CSRFToken": csrfToken,
+
+                },
+                credentials: "include",
+                body: JSON.stringify({ name:name, description: description})
+            });
+            if (response.ok) {
+                alert('Product created successfully!');
+                fetchProducts();
+            } else {
+                // console.error("Error creating product:", errorData);
+                // alert("Error: " + (errorData.detail || "Unknown error"));
+                try {
+                    const errorData = await response.json(); // Try parsing JSON error
+                    console.error("Error creating product:", errorData);
+                    alert("Error: " + (errorData.detail || "Unknown error"));
+                } catch (e) {
+                    console.error("Error response is not JSON", e);
+                    alert("Error: Unable to process the request");
+                }
+
+            }
+        }
+        
+        async function createAuction() {
+            const productId = document.getElementById('product-list').value;
+            const Title = document.getElementById('title').value;
+            const disc = document.getElementById('disc').value;
+            const endTime = document.getElementById('end-time').value;
+            const startingTime = document.getElementById('start-time').value;
+            const startingPrice = document.getElementById('starting-price').value;
+           
+            if (!productId) {
+                alert('Please select a product.');
+                return;
+            }
+            const csrfToken = getCSRFToken(); 
+            
+            const response = await fetch('http://127.0.0.1:8000/English_Auction/api/auctions/create/', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' ,
+                "X-CSRFToken": csrfToken
+
+                },
+
+                
+                credentials: "include",
+                body: JSON.stringify({title : Title,
+                    description : disc, 
+                    product: productId,
+                    start_time: startingTime, 
+                    end_time: endTime , 
+                    starting_price: startingPrice})
+            });
+
+            if (response.ok) {
+                alert('Auction created successfully!');
+            } else {
+                // alert('Error creating auction.');
+                // alert(errorData.detail || "Unknown error");
+                try {
+                    const errorData = await response.json(); // Try parsing JSON error
+                    console.error("Error creating auction:", errorData);
+                    alert("Error: " + (errorData.detail || "Unknown error"));
+                } catch (e) {
+                    console.error("Error response is not JSON", e);
+                    alert("Error: Unable to process the request");
+                }
+            }
+        }
+
+        fetchProducts();
+    </script>
+</body>
+</html>

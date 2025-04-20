@@ -1,0 +1,176 @@
+from django.http import JsonResponse
+from rest_framework import viewsets, permissions
+from rest_framework.response import Response
+from rest_framework.decorators import api_view,permission_classes
+from .models import EnglishAuctionItem, EnglishBid
+from .serializers import AuctionSerializer, BidSerializer
+from rest_framework.generics import RetrieveAPIView
+from django.contrib.auth.models import User
+import os
+from django.core.files.storage import FileSystemStorage
+from django.conf import settings
+from rest_framework import status
+from datetime import datetime
+from decimal import Decimal
+
+from io import BytesIO
+from django.core.mail import EmailMessage
+from django.template.loader import render_to_string
+import stripe
+from reportlab.lib.pagesizes import A4
+from reportlab.pdfgen import canvas
+from django.utils.html import strip_tags
+
+# Stripe Configuration
+stripe.api_key = settings.STRIPE_SECRET_KEY
+
+
+class AuctionViewSet(viewsets.ModelViewSet):
+    queryset = EnglishAuctionItem.objects.all()
+    serializer_class = AuctionSerializer
+    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
+
+class BidViewSet(viewsets.ModelViewSet):
+    queryset = EnglishBid.objects.all()
+    serializer_class = BidSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+class EnglishAuctionDetailView(RetrieveAPIView):
+    queryset = EnglishAuctionItem.objects.all()
+    serializer_class = AuctionSerializer
+
+def get_fake_user():
+    return User.objects.exclude(username="admin").first()
+
+
+@api_view(["POST"])
+def place_bid(request, id):
+    try:
+        auction = EnglishAuctionItem.objects.get(id=id)
+        print(f"{request.data.get('amount')}")
+        bid_amount = Decimal(request.data.get("amount"))
+        user_id = request.data.get("user")
+        user= User.objects.get(id=user_id)
+        print(f"the auction : {auction}\n the bid :{bid_amount}\n")
+
+        if bid_amount is None or user is None:
+            print("one of these is non ")
+            return Response({"error": "Invalid data"}, status=400)
+
+        if float( bid_amount) <= float( auction.current_price):
+
+            return Response({"error": "Your bid must be higher than the current price"}, status=400)
+        
+        bid = EnglishBid(auction=auction, bidder=user, amount=bid_amount)
+        bid.save()
+        auction.current_price = float(bid_amount)
+        auction.save()
+        print("placed sucesfuly")
+        return Response({"message": "Bid placed successfully", "new_price": auction.current_price})
+    except EnglishAuctionItem.DoesNotExist:
+        return Response({"error": "Auction not found"}, status=404)
+        
+
+
+@api_view(['POST'])
+@permission_classes([])  # Ajuste les permissions selon tes besoins
+def create_auction(request):
+    data = request.data
+    images = request.FILES.getlist('images')  # Récupère toutes les images envoyées
+    
+    # Récupérer le vendeur (à ajuster selon l'authentification)
+    # seller = User.objects.get(id=data.get('seller_id'))
+    fake_user = get_fake_user()  
+    
+    # when i get user 
+    # user_id = request.data.get("user")
+    # user= User.objects.get(id=user_id) #user_id
+
+    
+    # Créer l'enchère sans images
+    auction = EnglishAuctionItem.objects.create(
+        title=data.get('title'),
+        description=data.get('description'),
+        seller=fake_user,
+        starting_price=data.get('starting_price'),
+        current_price=data.get('starting_price'),  # Initialise current_price
+        end_time=datetime.strptime(data.get('end_time'), "%Y-%m-%dT%H:%M") ,
+        start_time=datetime.strptime(data.get('end_time'), "%Y-%m-%dT%H:%M")
+    )
+    
+    # Créer un dossier pour stocker les images (ex: media/auctions/{auction.id}/)
+    auction_folder = os.path.join(settings.MEDIA_ROOT, f'./frontend/public/imgs/Auction_English/{auction.id}')
+    os.makedirs(auction_folder, exist_ok=True)
+    
+    for index, image in enumerate(images, start=1):  # Start index from 1
+        fs = FileSystemStorage(location=auction_folder)
+        extension = os.path.splitext(image.name)[1]  # Get file extension (e.g., .jpg, .png)
+        filename = f"image{index}{extension}"  # Rename image (image1.jpg, image2.png, etc.)
+        
+        file_path = fs.save(filename, image)
+        print(f"Saved: {file_path}")
+        # Sauvegarde le chemin relatif dans la base de données si besoin (ex: Image model)
+        
+    return Response({"message": "Auction created successfully!", "auction_id": auction.id}, status=status.HTTP_201_CREATED)
+
+
+
+
+
+
+
+
+
+
+# Génération de la facture PDF
+def generate_invoice(auction):
+    buffer = BytesIO()
+    pdf = canvas.Canvas(buffer, pagesize=A4)
+    pdf.setTitle(f"Bill_{auction.id}.pdf")
+
+    pdf.setFont("Helvetica-Bold", 16)
+    pdf.drawString(200, 800, "PAYMENT BILL")
+    pdf.setFont("Helvetica", 12)
+    pdf.drawString(50, 770, f"Odre ID: {auction.id}")
+    pdf.drawString(50, 750, f"Date: {auction.start_time.strftime('%Y-%m-%d %H:%M')}")
+
+    pdf.line(50, 740, 550, 740)
+    pdf.setFont("Helvetica-Bold", 12)
+    pdf.drawString(50, 720, "Title")
+    pdf.drawString(500, 720, "Total")
+
+    y = 700
+    pdf.setFont("Helvetica", 12)
+    pdf.drawString(50, y, auction.title)
+    pdf.drawString(400, y, f"{auction.current_price:.2f}€")
+    y -= 20
+    
+    pdf.line(50, y - 10, 550, y - 10)
+    pdf.setFont("Helvetica-Bold", 14)
+    pdf.drawString(400, y - 30, "Total:")
+    pdf.drawString(500, y - 30, f"{auction.current_price:.2f}€")
+    
+    pdf.showPage()
+    pdf.save()
+    buffer.seek(0)
+    return buffer
+
+
+
+def send_invoice_email(auction,user_email , pdf_buffer):
+    
+    try:
+        print(auction.id)
+        subject = f"Your bill for English auction N#{auction.id}"
+        html_message = render_to_string('email/invoice_email.html', {'auction': auction})
+        plain_message = strip_tags(html_message)  # Version texte
+        email = EmailMessage(subject, plain_message, settings.EMAIL_HOST_USER, [user_email])
+        
+        # Attacher le PDF
+        email.attach(f"Bill_{auction.id}.pdf", pdf_buffer.getvalue(), "application/pdf")
+
+        # Envoyer l'email
+        email.send()
+        print(f"✅ Facture envoyée à {user_email}")
+    except Exception as e:
+        print(f"❌ Erreur d'envoi d'email: {e}")
