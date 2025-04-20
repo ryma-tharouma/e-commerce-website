@@ -4,30 +4,18 @@ import { useState, useEffect } from "react";
 import Image from "next/image";
 import { useParams, useRouter } from "next/navigation";
 import axios from "axios";
-import HoverImage from "../../../components/HoverImage";
 
 export default function ProductDetails() {
-  const { id } = useParams();
+  const { id } = useParams(); // Retrieve product ID from route
   const router = useRouter();
   const [product, setProduct] = useState(null);
   const [error, setError] = useState(null);
   const [quantity, setQuantity] = useState(1);
-  const [showSuccess, setShowSuccess] = useState(false);
   const [showPopup, setShowPopup] = useState(false);
+  const [showSuccess, setShowSuccess] = useState(false);
 
   // Simulate login state (replace with real auth logic later)
   const isLoggedIn = false; // Change to true to simulate a logged-in user
-
-  // Cart API setup
-  const API_URL = "http://localhost:8000/api/cart";
-  const api = axios.create({
-    baseURL: API_URL,
-    withCredentials: true,
-    headers: {
-      Accept: "application/json",
-      "Content-Type": "application/json",
-    },
-  });
 
   useEffect(() => {
     if (!id) return;
@@ -49,6 +37,18 @@ export default function ProductDetails() {
     fetchProduct();
   }, [id]);
 
+  // Function to add to cart
+  const API_URL = "http://localhost:8000/api/cart";
+
+  const api = axios.create({
+    baseURL: API_URL,
+    withCredentials: true,
+    headers: {
+      Accept: "application/json",
+      "Content-Type": "application/json",
+    },
+  });
+
   const addToCart = async (productId, quantity) => {
     try {
       console.log("Adding product to cart:", productId, "Quantity:", quantity);
@@ -60,6 +60,12 @@ export default function ProductDetails() {
       console.error("Error adding to cart:", err.message || err);
       alert("Failed to add product to cart. Please try again.");
     }
+  };
+
+  const handleAddToCart = (e) => {
+    e.preventDefault();
+    setQuantity(1);
+    setShowPopup(true);
   };
 
   const handleSubmit = (e) => {
@@ -139,42 +145,36 @@ export default function ProductDetails() {
       )}
 
       {/* Main Image */}
-      <div className="col-span-7 flex gap-4">
-        <div className="flex-1 flex justify-center items-center bg-gray-200 relative h-[500px] rounded">
-          <div className="w-full h-full relative">
-            {product?.image && (
-              <Image
-                src={product.image}
-                alt="Product"
-                fill
-                className="object-contain p-4"
-              />
-            )}
-          </div>
+      <div className="col-span-7 flex justify-center items-center bg-gray-200 relative">
+        <div className="w-full h-full relative">
+          {product.image && (
+            <Image
+              src={product.image}
+              alt="Product"
+              fill
+              className="object-contain"
+            />
+          )}
         </div>
       </div>
 
       {/* Product Details */}
       <div className="px-4 py-20 col-span-5 space-y-4">
-        <h1 className="text-2xl font-semibold text-gray-900">{product?.name}</h1>
-        <p className="text-sm text-gray-700">{product?.description}</p>
+        <h1 className="text-2xl font-semibold text-gray-900">{product.name}</h1>
+        <p className="text-sm text-gray-700">{product.description}</p>
 
         <div className="border-t border-b border-gray-400 py-2 text-gray-500 text-sm text-center font-semibold uppercase">
-          Price: ${product?.price}
+          Price: ${product.price}
         </div>
         <div>
-          <div className="text-center text-lg font-bold text-[#D4AF37]">
-            In Stock: {product?.stock}
+          <div className="text-center text-lg font-bold text-yellow-600">
+            In Stock: {product.stock}
           </div>
 
           <div className="text-center pt-4">
             <button
-              onClick={(e) => {
-                e.preventDefault();
-                setQuantity(1);
-                setShowPopup(true);
-              }}
-              className="bg-[#D4AF37] text-white py-3 w-full font-[Georgia] text-sm font-semibold hover:bg-[#B38F2A]"
+              onClick={handleAddToCart}
+              className="bg-yellow-600 text-white py-3 w-full font-[Georgia] text-sm font-semibold hover:bg-yellow-700"
             >
               Add to Cart
             </button>

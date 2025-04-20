@@ -1,5 +1,5 @@
 from django.shortcuts import render
-from rest_framework import viewsets, status
+from rest_framework import viewsets, status, filters
 from rest_framework.response import Response
 from rest_framework.decorators import api_view
 from .models import StockMovement, LowStockAlert
@@ -20,3 +20,12 @@ class LowStockAlertViewSet(viewsets.ModelViewSet):
 class ProductViewSet(viewsets.ModelViewSet):
     queryset = Product.objects.all()
     serializer_class = ProductSerializer
+    filter_backends = [filters.SearchFilter]
+    search_fields = ['name', 'description']
+
+    def get_queryset(self):
+        queryset = Product.objects.all()
+        category = self.request.query_params.get('category', None)
+        if category:
+            queryset = queryset.filter(category=category)
+        return queryset

@@ -183,7 +183,18 @@ def get_cart(request):
 @api_view(['GET'])
 def get_products(request):
     products = Product.objects.all()
-    data = [{"id": p.id, "name": p.name, "price": p.price, "stock": p.stock} for p in products]
+    data = [
+        {
+            "id": p.id,
+            "name": p.name,
+            "price": p.price,
+            "stock": p.stock,
+            "description": p.description,
+            "image": p.image,
+            "category": p.category
+        }
+        for p in products
+    ]
     return Response(data)
 
 @csrf_exempt

@@ -5,7 +5,7 @@ import Link from "next/link";
 import HoverImage from "./HoverImage";
 import axios from "axios";
 
-const ProductList = () => {
+export default function ProductList({ category }) {
   const [products, setProducts] = useState([]); // State to store products
   const [loading, setLoading] = useState(true); // State for loading status
   const [error, setError] = useState(null); // State for error handling
@@ -54,18 +54,28 @@ const ProductList = () => {
 
   // Fetch products from the backend
   useEffect(() => {
-    fetch("http://127.0.0.1:8000/inventory/api/products/")
-      .then((response) => response.json())
-      .then((data) => {
+    const fetchProducts = async () => {
+      try {
+        const url = category 
+          ? `http://127.0.0.1:8000/inventory/api/products/?category=${category}`
+          : 'http://127.0.0.1:8000/inventory/api/products/';
+        
+        const response = await fetch(url);
+        if (!response.ok) {
+          throw new Error('Failed to fetch products');
+        }
+        const data = await response.json();
         setProducts(data); // Update the products state
-        setLoading(false);
-      })
-      .catch((err) => {
+      } catch (err) {
         console.error("Error loading products:", err);
-        setError("Failed to load products. Please try again later.");
+        setError(err.message);
+      } finally {
         setLoading(false);
-      });
-  }, []);
+      }
+    };
+
+    fetchProducts();
+  }, [category]);
 
   // Handle loading state
   if (loading)
@@ -85,7 +95,7 @@ const ProductList = () => {
   if (products.length === 0) {
     return (
       <div className="text-center font-[Georgia] text-yellow-500 m-10">
-        No products available at the moment.
+        No products available in this category.
       </div>
     );
   }
@@ -150,24 +160,30 @@ const ProductList = () => {
           <Link
             key={product.id}
             href={`/products/${product.id}`}
-            className="relative block bg-gray-100 overflow-hidden rounded-lg shadow-sm hover:shadow-md transition-shadow"
+            className="relative block bg-gray-100 overflow-hidden rounded-lg shadow-sm hover:shadow-md transition-shadow h-[380px] flex flex-col"
           >
             {/* Hover Image */}
-            <HoverImage defaultSrc={product.image} hoverSrc={product.image} />
-            <div className="mt-2 text-center p-3 bg-white">
-              <p className="font-semibold text-gray-900 text-base">{product.name}</p>
+            <div className="relative w-full h-[240px]">
+              <HoverImage 
+                defaultSrc={product.images?.find(img => img.is_primary)?.image || product.image} 
+                hoverSrc={product.images?.find(img => img.is_primary)?.image || product.image} 
+                className="w-full h-full object-cover"
+              />
+            </div>
+            <div className="mt-2 text-center p-3 bg-white flex-grow flex flex-col">
+              <p className="font-semibold text-gray-900 text-sm mb-1 line-clamp-1">{product.name}</p>
               <div className="flex justify-center items-center gap-2 mb-1">
-                <p className="text-[#D4AF37] text-lg font-bold">
+                <p className="text-[#D4AF37] text-base font-bold">
                   {product.price ? `$${product.price}` : "Price Upon Request"}
                 </p>
                 <span className="text-gray-400">|</span>
                 <p className="text-xs text-gray-500">Stock: {product.stock}</p>
               </div>
-              <p className="text-xs text-gray-700 mb-3 line-clamp-2">
+              <p className="text-xs text-gray-700 mb-2 line-clamp-2 flex-grow">
                 {product.description || "No description available"}
               </p>
               <button 
-                className="w-full py-1.5 bg-[#D4AF37] text-white font-semibold rounded hover:bg-[#B38F2A] transition-colors text-sm"
+                className="w-full py-1 bg-[#D4AF37] text-white font-semibold rounded hover:bg-[#B38F2A] transition-colors text-xs"
                 onClick={(e) => handleAddToCart(e, product)}
               >
                 Add to Cart
@@ -178,6 +194,4 @@ const ProductList = () => {
       </div>
     </div>
   );
-};
-
-export default ProductList;
+}
