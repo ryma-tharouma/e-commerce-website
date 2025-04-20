@@ -54,6 +54,7 @@ INSTALLED_APPS = [
     "Auction_Combinatoire",
     
     'django_q',
+    'inventory'
 ]
 
 MIDDLEWARE = [
@@ -206,3 +207,6 @@ Q_CLUSTER = {
     'orm': 'default',  # Uses Django's database as broker
 }
 
+CSRF_TRUSTED_ORIGINS = [
+    "http://localhost:3000", 
+]
