@@ -1,6 +1,7 @@
 "use client";
 import Link from "next/link";
 import Image from "next/image";
+
 import {
   FiPhone,
   FiMail,
@@ -9,6 +10,7 @@ import {
   FiSearch,
 } from "react-icons/fi";
 import { useCart } from "./CartContext";
+import { useState } from "react";
 
 export default function Cart() {
   const {
@@ -19,6 +21,8 @@ export default function Cart() {
     create_checkout_session,
   } = useCart();
   const total = cart.reduce((sum, item) => sum + item.subtotal, 0);
+  const [paymentMethod, setPaymentMethod] = useState("stripe");
+
   //console.log("🛒 Contenu du panier :", cart);
   return (
     <div className="min-h-screen flex flex-col justify-between bg-gray-100">
@@ -99,7 +103,7 @@ export default function Cart() {
       {/* MAIN CONTENT */}
       <main className="flex flex-col items-center justify-center flex-grow min-h-[50vh] py-10">
         {/* Ajouter un produit test */}
-        {/* <button
+         <button
           onClick={() =>
             addToCart({
               product_id: 1,
@@ -124,7 +128,7 @@ export default function Cart() {
           className="mt-4 px-6 py-2 bg-green-600 text-white rounded-md shadow-md hover:bg-green-700"
         >
           Ajouter un produit test 2
-        </button> */}
+        </button> 
 
         <h1 className="text-4xl font-[Georgia] font-bold mb-6">Shopping Bag</h1>
 
@@ -146,7 +150,7 @@ export default function Cart() {
               <div className="w-full md:w-2/3 space-y-6 bg-white p-6 shadow-md rounded-lg">
                 <div>
                   <Link href="/">
-                    <button className="text-blue-600 hover:underline font-medium cursor-pointer">
+                    <button className="text-yellow-600 hover:underline font-medium cursor-pointer">
                       ← Continue Browsing
                     </button>
                   </Link>
@@ -251,13 +255,37 @@ export default function Cart() {
                     <span>Estimated Total</span>
                     <span>${total}</span>
                   </div>
+                <div className="grid grid-cols-2 gap-4">
+                  <button
+                    onClick={() => setPaymentMethod("stripe")}
+                    className={`border rounded-md px-4 py-2 text-sm font-medium transition ${
+                      paymentMethod === "stripe"
+                        ? "border-yellow-600 bg-yellow-100 text-yellow-800"
+                        : "border-gray-300 bg-white text-gray-700 hover:bg-gray-50"
+                    }`}
+                  >
+                    💳 Stripe
+                  </button>
+                  <button
+                    onClick={() => setPaymentMethod("edahabia")}
+                    className={`border rounded-md px-4 py-2 text-sm font-medium transition ${
+                      paymentMethod === "edahabia"
+                        ? "border-yellow-600 bg-yellow-100 text-yellow-800"
+                        : "border-gray-300 bg-white text-gray-700 hover:bg-gray-50"
+                    }`}
+                  >
+                    🧾 Edahabia
+                  </button>
                 </div>
-                <button
-                  onClick={() => create_checkout_session()}
-                  className="mt-6 w-full bg-yellow-600 hover:bg-yellow-700 text-white py-3 rounded-md text-lg font-medium cursor-pointer"
-                >
-                  CHECKOUT
-                </button>
+              </div>
+
+              {/* Bouton checkout */}
+              <button
+                onClick={() => create_checkout_session(paymentMethod)}
+                className="mt-6 w-full bg-yellow-600 hover:bg-yellow-700 text-white py-3 rounded-md text-lg font-medium cursor-pointer"
+              >
+                CHECKOUT
+              </button>
               </div>
             </div>
           </div>
