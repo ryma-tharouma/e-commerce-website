@@ -160,30 +160,30 @@ export default function ProductList({ category }) {
           <Link
             key={product.id}
             href={`/products/${product.id}`}
-            className="relative block bg-gray-100 overflow-hidden rounded-lg shadow-sm hover:shadow-md transition-shadow h-[380px] flex flex-col"
+            className="relative block bg-white overflow-hidden rounded-lg shadow-md hover:shadow-xl transition-all duration-300 h-[420px] flex flex-col group cursor-pointer font-serif"
           >
             {/* Hover Image */}
-            <div className="relative w-full h-[240px]">
+            <div className="relative w-full h-[260px] overflow-hidden">
               <HoverImage 
                 defaultSrc={product.images?.find(img => img.is_primary)?.image || product.image} 
                 hoverSrc={product.images?.find(img => img.is_primary)?.image || product.image} 
-                className="w-full h-full object-cover"
+                className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
               />
             </div>
-            <div className="mt-2 text-center p-3 bg-white flex-grow flex flex-col">
-              <p className="font-semibold text-gray-900 text-sm mb-1 line-clamp-1">{product.name}</p>
-              <div className="flex justify-center items-center gap-2 mb-1">
-                <p className="text-[#D4AF37] text-base font-bold">
+            <div className="mt-2 text-center p-4 bg-white flex-grow flex flex-col">
+              <p className="font-serif font-semibold text-gray-900 text-base mb-2 line-clamp-1">{product.name}</p>
+              <div className="flex justify-center items-center gap-2 mb-2">
+                <p className="text-[#D4AF37] text-lg font-bold font-serif">
                   {product.price ? `$${product.price}` : "Price Upon Request"}
                 </p>
-                <span className="text-gray-400">|</span>
-                <p className="text-xs text-gray-500">Stock: {product.stock}</p>
+                <span className="text-gray-300">|</span>
+                <p className="text-sm text-gray-500 font-serif">Stock: {product.stock}</p>
               </div>
-              <p className="text-xs text-gray-700 mb-2 line-clamp-2 flex-grow">
+              <p className="text-sm text-gray-600 mb-4 line-clamp-2 flex-grow font-serif">
                 {product.description || "No description available"}
               </p>
               <button 
-                className="w-full py-1 bg-[#D4AF37] text-white font-semibold rounded hover:bg-[#B38F2A] transition-colors text-xs"
+                className="w-full py-3 bg-[#D4AF37] text-white font-semibold rounded-md hover:bg-[#B38F2A] transition-colors text-sm shadow-sm hover:shadow-md cursor-pointer font-serif"
                 onClick={(e) => handleAddToCart(e, product)}
               >
                 Add to Cart

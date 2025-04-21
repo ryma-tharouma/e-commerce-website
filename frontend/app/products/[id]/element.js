@@ -128,13 +128,13 @@ export default function ProductDetails() {
                     setQuantity(1);
                     setShowPopup(false);
                   }}
-                  className="px-4 py-2 text-gray-700 border border-gray-300 rounded-md hover:bg-gray-100"
+                  className="px-4 py-2 text-gray-700 border border-gray-300 rounded-md hover:bg-gray-100 cursor-pointer"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
-                  className="px-4 py-2 bg-[#D4AF37] text-white rounded-md hover:bg-[#B38F2A]"
+                  className="px-4 py-2 bg-[#D4AF37] text-white rounded-md hover:bg-[#B38F2A] cursor-pointer"
                 >
                   Add to Cart
                 </button>
@@ -174,7 +174,7 @@ export default function ProductDetails() {
           <div className="text-center pt-4">
             <button
               onClick={handleAddToCart}
-              className="bg-yellow-600 text-white py-3 w-full font-[Georgia] text-sm font-semibold hover:bg-yellow-700"
+              className="bg-yellow-600 text-white py-3 w-full font-[Georgia] text-sm font-semibold hover:bg-yellow-700 cursor-pointer"
             >
               Add to Cart
             </button>

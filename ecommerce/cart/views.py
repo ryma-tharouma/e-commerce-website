@@ -11,6 +11,7 @@ from django.core.mail import EmailMessage
 from django.template.loader import render_to_string
 from django.utils.html import strip_tags
 from .models import CartItem, Product, Order, OrderItem
+from inventory.models import StockMovement
 from django.views.decorators.csrf import csrf_exempt
 from django.http import HttpResponse
 from django.http import HttpResponseRedirect
@@ -100,12 +101,9 @@ def generate_invoice(order):
 
 @api_view(['POST'])
 def add_to_cart(request, product_id):
-    #print("Cookies reçus :", request.COOKIES)  # 🔍 Vérifie si 'sessionid' est bien là
     session_id = request.session.session_key
     product = get_object_or_404(Product, id=product_id)
     quantity = int(request.data.get('quantity', 1))
-    # print("🔑 Session actuelle dans add cart:", request.session.session_key)
-    # print("🔒 Cookies reçus dans add cart :", request.COOKIES)
 
     print("Session key après load dans add to cart :", session_id)
     if not session_id:
@@ -124,11 +122,7 @@ def add_to_cart(request, product_id):
         cart_item.quantity += quantity
     cart_item.save()
 
-    product.stock -= quantity
-    product.save()
-
     return Response({'message': 'Produit ajouté au panier', 'cart': list_cart(session_id)})
-
 
 @api_view(['POST'])
 def remove_from_cart(request, product_id):
@@ -144,14 +138,9 @@ def remove_from_cart(request, product_id):
         else:
             cart_item.delete()
         
-        # Remettre le stock à jour
-        cart_item.product.stock += 1
-        cart_item.product.save()
-        
         return Response({'message': 'Quantité réduite', 'cart': list_cart(session_id)})
 
     return Response({'error': 'Produit non trouvé'}, status=404)
-
 
 @api_view(['POST'])
 def clear_cart(request):
@@ -159,12 +148,8 @@ def clear_cart(request):
     if not session_id:
         return Response({'error': 'Session non trouvée'}, status=400)
     cart_items = CartItem.objects.filter(session_id=session_id)
-    for item in cart_items:
-        item.product.stock += item.quantity
-        item.product.save()
     cart_items.delete()
-    return Response({'message': 'Panier vidé et stock restauré'})
-
+    return Response({'message': 'Panier vidé'})
 
 @api_view(['GET'])
 def get_cart(request):
@@ -268,6 +253,16 @@ def success(request):
         return HttpResponse("Order ID manquant", status=400)
 
     order = get_object_or_404(Order, id=order_id)
+    
+    # Create stock movements for each item in the order
+    for order_item in order.items.all():
+        StockMovement.objects.create(
+            product=order_item.product,
+            movement_type='OUT',
+            quantity=order_item.quantity,
+            remarks=f"Sold in order #{order.id}"
+        )
+    
     invoice_pdf = generate_invoice(order)
     send_invoice_email("ferielakm@gmail.com", order, invoice_pdf)
 
