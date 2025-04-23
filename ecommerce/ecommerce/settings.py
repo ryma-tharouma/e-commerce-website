@@ -52,7 +52,7 @@ INSTALLED_APPS = [
     "Auction_English",
     "Auction_Sealed",
     "Auction_Combinatoire",
-    
+    "payment",
     'django_q',
 ]
 

@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Payment Successful</title>
+    <style>
+        body { font-family: Arial, sans-serif; text-align: center; padding: 20px; }
+        .success { color: green; font-size: 24px; font-weight: bold; }
+    </style>
+</head>
+<body>
+    <h2 class="success">✅ Payment Successful!</h2>
+    <p>Thank you for your payment. You will receive a confirmation email shortly.</p>
+    <a href="{% url 'payment_page' %}">Go back to Home</a>
+</body>
+</html>

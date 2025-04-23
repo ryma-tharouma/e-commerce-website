@@ -20,12 +20,10 @@ from Auction_English.views import get_user_bids,success
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/cart/', include('cart.urls')),  # On inclut les URLs de l'application "cart"
-
     path('Auction_English/', include('Auction_English.urls')),
     path('Auction_Sealed/', include('Auction_Sealed.urls')),
     path('Auction_Combinatoire/', include('Auction_Combinatoire.urls')),
     path('Bids/<int:user_id>',get_user_bids, name="get_user_bids" ),
     path('Bids/pay/success/<int:order_id>',success, name="success" ),
-    
-
+    path('payment/',include('payment.urls')),
 ]
