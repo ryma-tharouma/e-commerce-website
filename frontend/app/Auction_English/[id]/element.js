@@ -100,8 +100,8 @@ export default function English_Auction_Item() {
       );
       console.log("Reponse brute:", response);
       if (!response.ok) {
-        console.log("Error Details:", errorData);
-        throw new Error("Bid failed! Please enter a valid amount.");
+        const errorData = await response.json();
+        throw new Error(errorData.error);
       }
 
       const data = await response.json();
@@ -116,11 +116,6 @@ export default function English_Auction_Item() {
       <p className="text-center font-[Georgia] text-yellow-500 m-10">
         Loading...
       </p>
-    );
-
-  if (error)
-    return (
-      <p className="text-center font-[Georgia] text-yellow-500 m-10">{error}</p>
     );
   return (
     <div className=" mx-auto px-7 py-8 grid grid-cols-12 gap-4 text-gray-700 font-serif">
@@ -184,6 +179,7 @@ export default function English_Auction_Item() {
               value={bidAmount}
               onChange={(e) => setBidAmount(e.target.value)}
             />
+            <p className=" mt-2 text-center text-red-500 text-sm">{error}</p>
           </div>
         )}
       </div>

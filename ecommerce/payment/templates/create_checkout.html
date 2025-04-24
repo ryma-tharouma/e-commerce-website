@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Checkout</title>
+</head>
+<body>
+    <h1>Payment Checkout</h1>
+    <form method="POST">
+        {% csrf_token %}
+        <label for="amount">Amount (DZD):</label>
+        <input type="number" name="amount" required><br>
+
+        <label for="email">Email:</label>
+        <input type="email" name="email" required><br>
+
+        <label for="payment_method">Payment Method:</label>
+        <select name="payment_method">
+            <option value="CIB">CIB</option>
+            <option value="EDAHABIA">Edahabia</option>
+        </select><br>
+
+        <button type="submit">Pay Now</button>
+    </form>
+</body>
+</html>

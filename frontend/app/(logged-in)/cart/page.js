@@ -1,6 +1,9 @@
 "use client";
 import Link from "next/link";
 import Image from "next/image";
+import Header from "../../../components/Header";
+import Footer from "../../../components/Footer";
+
 import {
   FiPhone,
   FiMail,
@@ -9,6 +12,7 @@ import {
   FiSearch,
 } from "react-icons/fi";
 import { useCart } from "./CartContext";
+import { useState } from "react";
 
 export default function Cart() {
   const {
@@ -19,87 +23,18 @@ export default function Cart() {
     create_checkout_session,
   } = useCart();
   const total = cart.reduce((sum, item) => sum + item.subtotal, 0);
+  const [paymentMethod, setPaymentMethod] = useState("stripe");
+
   //console.log("🛒 Contenu du panier :", cart);
   return (
     <div className="min-h-screen flex flex-col justify-between bg-gray-100">
       {/* HEADER */}
-      <header className="bg-white shadow-md py-2">
-        {/* Top Bar */}
-        <div className="container mx-auto flex justify-between items-center px-6 text-sm text-gray-700">
-          <div className="flex space-x-4">
-            <span className="flex items-center">
-              <FiPhone className="mr-1 text-[#D4AF37]" /> 1-888-557-2406
-            </span>
-            <span className="flex items-center">
-              <FiMail className="mr-1 text-[#D4AF37]" /> Sign up for the Latest
-            </span>
-          </div>
-          <div className="flex space-x-4">
-            <Link
-              href="/wishlist"
-              className="flex items-center hover:text-[#D4AF37]"
-            >
-              Create Wishlist <FiHeart className="ml-1" />
-            </Link>
-            <Link href="/signin" className="hover:text-[#D4AF37]">
-              Sign in &gt;
-            </Link>
-            <Link
-              href="/cart"
-              className="flex items-center hover:text-[#D4AF37]"
-            >
-              Shopping Bag <FiShoppingBag className="ml-1" />
-            </Link>
-          </div>
-        </div>
-
-        {/* Main Header */}
-        <div className="container mx-auto flex justify-between items-center px-6 py-3">
-          {/* Logo */}
-          <div className="flex-1 flex justify-center">
-            <Image src="/FNRK.png" alt="Logo" width={120} height={100} />
-          </div>
-        </div>
-
-        {/* Navigation */}
-        <div className="container mx-auto flex justify-between items-center">
-          <nav className="container mx-auto flex justify-center space-x-6 font-semibold py-2">
-            {[
-              "recent",
-              "fineart",
-              "antiques",
-              "jewelry",
-              "library",
-              "about",
-            ].map((item) => (
-              <Link
-                key={item}
-                href={`/${item}`}
-                className="text-xs font-[Georgia] hover:text-[#D4AF37]"
-              >
-                {item.toUpperCase().replace("_", " ")}
-              </Link>
-            ))}
-          </nav>
-
-          {/* Search Bar */}
-          <div className="container mx-auto flex justify-end px-6 py-2">
-            <div className="relative">
-              <input
-                type="text"
-                placeholder="Search"
-                className="border-b border-gray-400 p-2 pl-4 pr-10 text-gray-500 text-sm focus:outline-none"
-              />
-              <FiSearch className="absolute right-2 top-3 text-[#D4AF37]" />
-            </div>
-          </div>
-        </div>
-      </header>
+      <Header/>
 
       {/* MAIN CONTENT */}
       <main className="flex flex-col items-center justify-center flex-grow min-h-[50vh] py-10">
         {/* Ajouter un produit test */}
-        {/* <button
+         {/* <button
           onClick={() =>
             addToCart({
               product_id: 1,
@@ -124,7 +59,7 @@ export default function Cart() {
           className="mt-4 px-6 py-2 bg-green-600 text-white rounded-md shadow-md hover:bg-green-700"
         >
           Ajouter un produit test 2
-        </button> */}
+        </button>  */}
 
         <h1 className="text-4xl font-[Georgia] font-bold mb-6">Shopping Bag</h1>
 
@@ -146,7 +81,7 @@ export default function Cart() {
               <div className="w-full md:w-2/3 space-y-6 bg-white p-6 shadow-md rounded-lg">
                 <div>
                   <Link href="/">
-                    <button className="text-blue-600 hover:underline font-medium cursor-pointer">
+                    <button className="text-yellow-600 hover:underline font-medium cursor-pointer">
                       ← Continue Browsing
                     </button>
                   </Link>
@@ -251,13 +186,37 @@ export default function Cart() {
                     <span>Estimated Total</span>
                     <span>${total}</span>
                   </div>
+                <div className="grid grid-cols-2 gap-4">
+                  <button
+                    onClick={() => setPaymentMethod("stripe")}
+                    className={`border rounded-md px-4 py-2 text-sm font-medium transition ${
+                      paymentMethod === "stripe"
+                        ? "border-yellow-600 bg-yellow-100 text-yellow-800"
+                        : "border-gray-300 bg-white text-gray-700 hover:bg-gray-50"
+                    }`}
+                  >
+                    💳 Stripe
+                  </button>
+                  <button
+                    onClick={() => setPaymentMethod("edahabia")}
+                    className={`border rounded-md px-4 py-2 text-sm font-medium transition ${
+                      paymentMethod === "edahabia"
+                        ? "border-yellow-600 bg-yellow-100 text-yellow-800"
+                        : "border-gray-300 bg-white text-gray-700 hover:bg-gray-50"
+                    }`}
+                  >
+                    🧾 Edahabia
+                  </button>
                 </div>
-                <button
-                  onClick={() => create_checkout_session()}
-                  className="mt-6 w-full bg-yellow-600 hover:bg-yellow-700 text-white py-3 rounded-md text-lg font-medium cursor-pointer"
-                >
-                  CHECKOUT
-                </button>
+              </div>
+
+              {/* Bouton checkout */}
+              <button
+                onClick={() => create_checkout_session(paymentMethod)}
+                className="mt-6 w-full bg-yellow-600 hover:bg-yellow-700 text-white py-3 rounded-md text-lg font-medium cursor-pointer"
+              >
+                CHECKOUT
+              </button>
               </div>
             </div>
           </div>
@@ -265,54 +224,7 @@ export default function Cart() {
       </main>
 
       {/* FOOTER */}
-      <footer className="bg-white shadow-md py-6 text-gray-700">
-        <div className="container mx-auto grid grid-cols-2 md:grid-cols-4 gap-6 px-6 text-sm">
-          {[
-            {
-              title: "Shop",
-              links: ["Recent Acquisitions", "Antiques", "Jewelry", "Fine Art"],
-            },
-            {
-              title: "Can We Help?",
-              links: ["Customer Care", "FAQs", "Design Services", "Contact Us"],
-            },
-            {
-              title: "Our Company",
-              links: ["Buy with Confidence", "Events", "Sell to Us", "Careers"],
-            },
-          ].map((section, index) => (
-            <div key={index}>
-              <h3 className="font-semibold">{section.title}</h3>
-              <ul>
-                {section.links.map((link, i) => (
-                  <li
-                    key={i}
-                    className="flex items-center hover:text-[#D4AF37] cursor-pointer"
-                  >
-                    {link}
-                  </li>
-                ))}
-              </ul>
-            </div>
-          ))}
-
-          {/* Newsletter */}
-          <div>
-            <h3 className="font-semibold">Get The Latest</h3>
-            <input
-              type="email"
-              placeholder="Email Address"
-              className="border p-1 w-full rounded hover:border-[#D4AF37]"
-            />
-            <button className="mt-2 px-4 py-1 bg-gray-900 text-white rounded hover:bg-[#D4AF37] w-full cursor-pointer">
-              Join
-            </button>
-          </div>
-        </div>
-        <div className="text-center text-xs mt-6">
-          © 2025 M.S. Rau | Privacy | Site Map
-        </div>
-      </footer>
+      <Footer/>
     </div>
   );
 }

@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Checkout List</title>
+</head>
+<body>
+    <h1>All Checkouts</h1>
+    <table border="1">
+        <tr>
+            <th>Entity ID</th>
+            <th>Amount</th>
+            <th>Status</th>
+            <th>Details</th>
+        </tr>
+        {% for checkout in checkouts %}
+        <tr>
+            <td>{{ checkout.entity_id }}</td>
+            <td>{{ checkout.amount }} DZD</td>
+            <td>{{ checkout.status }}</td>
+            <td><a href="{% url 'checkout_detail' checkout.entity_id %}">View</a></td>
+        </tr>
+        {% endfor %}
+    </table>
+</body>
+</html>

@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Payment Failed</title>
+    <style>
+        body { font-family: Arial, sans-serif; text-align: center; padding: 20px; }
+        .failed { color: red; font-size: 24px; font-weight: bold; }
+    </style>
+</head>
+<body>
+    <h2 class="failed">❌ Payment Failed!</h2>
+    <p>Something went wrong. Please try again.</p>
+    <a href="{% url 'payment_page' %}">Try Again</a>
+</body>
+</html>

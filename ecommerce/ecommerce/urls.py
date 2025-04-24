@@ -1,8 +1,10 @@
 from django.contrib import admin
 from django.urls import path,include
 from Auction_English.views import get_user_bids,success
+from payment.views import checkout
 
 urlpatterns = [
+    path('payment/',include('payment.urls')),
     path('admin/', admin.site.urls),
     path('api/cart/', include('cart.urls')), 
     path('Auction_English/', include('Auction_English.urls')),
