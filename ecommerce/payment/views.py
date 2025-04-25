@@ -37,7 +37,7 @@ def checkout(request):
                 "amount": float(payment.amount),
                 "discount": float(payment.discount),
                 "back_url": settings.BACK_URL,
-                "webhook_url": "https://webhook.site/2cc88d77-8137-43fd-95b1-9a095212fb23",
+                "webhook_url": "https://webhook.site/117d748e-79ab-4625-a7b0-845db6641bf4",
                 "mode": payment.mode,
                 "comment": payment.comment,
             }
