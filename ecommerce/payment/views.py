@@ -4,32 +4,32 @@ from django.conf import settings
 from .models import Payment
 from .forms import PaymentForm
 from cart.models import CartItem,Order,OrderItem
+from datetime import datetime
+from random import randint
+
 
 def checkout(request):
-    # session_id = request.session.session_key 
-    # print(session_id)
-    # cart_items = CartItem.objects.filter(session_id=session_id)
-    # order = Order.objects.create(total_price=sum(item.quantity * item.product.price for item in cart_items))
-    # for item in cart_items:
-    #     OrderItem.objects.create(order=order, product=item.product, quantity=item.quantity)
-    # print(order.total_price)
-    # context = {
-    #     'amount': order.total_price,
-    #     'email': 'ferielakm@gmail.com',
-    #     'payment_method': 'EDAHABIA'
-    # }
+    session_id = request.session.session_key
+    if not session_id:
+        request.session.create()
+        session_id = request.session.session_key
+
+    cart_items = CartItem.objects.filter(session_id=session_id)
+
+    total_price = sum(item.quantity * item.product.price for item in cart_items)
+    quantity = sum(item.quantity for item in cart_items)
+    now = datetime.now()
+    invoice_number = f"INV-{now.strftime('%Y%m%d')}-{randint(1000, 9999)}"
+
     if request.method == "POST":
         form = PaymentForm(request.POST)
         if form.is_valid():
             payment = form.save()
-            session_id = request.session.session_key 
-            print(session_id)
-            cart_items = CartItem.objects.filter(session_id=session_id)
-            order = Order.objects.create(total_price=sum(item.quantity * item.product.price for item in cart_items))
+
+            order = Order.objects.create(total_price=total_price)
             for item in cart_items:
                 OrderItem.objects.create(order=order, product=item.product, quantity=item.quantity)
-            # Prepare data for Chargily API
-            print(order.total_price)
+
             payload = {
                 "client": payment.client,
                 "client_email": payment.client_email,
@@ -43,25 +43,21 @@ def checkout(request):
             }
 
             headers = {
-                 "X-Authorization": settings.CHARGILY_API_KEY,  # Use X-Authorization instead of Authorization
-                 "Content-Type": "application/json",
-                 "Accept": "application/json"  # Add Accept header
+                "X-Authorization": settings.CHARGILY_API_KEY,
+                "Content-Type": "application/json",
+                "Accept": "application/json"
             }
-
 
             response = requests.post(settings.CHARGILY_INVOICE_URL, json=payload, headers=headers)
             print(response.json())
             if response.status_code == 201:
                 data = response.json()
-                print(data)
-                return redirect(data["checkout_url"])  # Redirect user to payment page
+                return redirect(data["checkout_url"])
             else:
                 return render(request, "payments/error.html", {"message": "Payment failed!"})
-
     else:
-        form = PaymentForm()
-    #cart_items.delete()
-    #context['form'] = form
+        form = PaymentForm(initial={"amount": total_price,"discount":quantity,"client_email":'ferielakm@gmail.com',"invoice_number":invoice_number})
+    cart_items.delete()
     return render(request, "payments/checkout.html", {"form": form})
 
 

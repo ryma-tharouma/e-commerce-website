@@ -42,7 +42,7 @@ export default function Footer() {
           </div>
         </div>
         <div className="text-center text-xs mt-6">
-          © 2025 M.S. Rau | Privacy | Site Map
+          © 2025 FNRK | Privacy | Site Map
         </div>
       </footer>
     );

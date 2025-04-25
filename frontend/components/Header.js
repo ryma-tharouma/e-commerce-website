@@ -22,7 +22,7 @@ export default function Header() {
         </div>
         <div className="flex space-x-4">
           <Link href="/wishlist" className="flex items-center hover:text-[#D4AF37]">
-            Create Wishlist <FiHeart className="ml-1" />
+            Wishlist <FiHeart className="ml-1" />
           </Link>
           <Link href="/signin" className="hover:text-[#D4AF37]">
             Sign in &gt;
@@ -52,7 +52,7 @@ export default function Header() {
 <div className="flex items-center justify-center ">
   <div className="group relative py-5">
     <div className="">
-      <p className="menu-hover text-xs font-[Georgia] hover:text-gray-500">
+      <p className="menu-hover text-xs font-[Georgia] hover:text-[#D4AF37] cursor-pointer">
         AUCTIONS
       </p>
     </div>
