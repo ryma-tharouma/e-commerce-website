@@ -17,14 +17,22 @@ class Product(models.Model):
     
     def __str__(self):
         return self.name
+
+# Combinatorial_
+class Combinatorial_Product(models.Model):
+    name = models.CharField(max_length=255)
+    description = models.TextField()
+    seller = models.ForeignKey(User, on_delete=models.CASCADE)
     
+    def __str__(self):
+        return self.name    
 class CombinatorialAuction(models.Model):
     title = models.CharField(max_length=255, editable=True)
     description = models.TextField(default=" ")
 
     seller = models.ForeignKey(User, on_delete=models.CASCADE,default=get_admin_user)
 
-    products = models.ManyToManyField(Product, related_name="combinatorial_auctions")
+    products = models.ManyToManyField(Combinatorial_Product, related_name="combinatorial_auctions")
 
     start_time = models.DateTimeField(auto_now_add=True)
     end_time = models.DateTimeField()
@@ -88,7 +96,7 @@ from django import forms
 class CombinatorialBid(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     auction = models.ForeignKey(CombinatorialAuction, on_delete=models.CASCADE, related_name="combinatorial_bids")
-    products = models.ManyToManyField(Product,related_name="combinatorial_bids_product")
+    products = models.ManyToManyField(Combinatorial_Product,related_name="combinatorial_bids_product")
     amount = models.DecimalField(max_digits=10, decimal_places=2)
 
             

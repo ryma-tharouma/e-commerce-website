@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import CombinatorialAuction,CombinatorialBid, Product
+from .models import CombinatorialAuction,CombinatorialBid, Combinatorial_Product
 
 class AuctionSerializer(serializers.ModelSerializer):
     class Meta:

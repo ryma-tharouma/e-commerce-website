@@ -178,7 +178,6 @@ def get_user_bids(request, user_id):
         # Fetch the user from the database
         user = User.objects.get(id=user_id)
         
-
         # Fetch bids for the user from all relevant models
         english_bids = EnglishBid.objects.filter(bidder=user)
         sealed_bids = SealedBid.objects.filter(bidder=user)

@@ -23,7 +23,7 @@ export default function Sealed_Auction_Item() {
 
   useEffect(() => {
     if (!id) return; //evite une requet vide 
-    fetch(`http://127.0.0.1:8000/Auction_English/auctions/${id}/`)
+    fetch(`http://127.0.0.1:8000/Auction_Sealed/auctions/${id}/`)
     .then(response => {
         // console.log("Réponse brute :", response);
         return response.json(); // Convertir la réponse en JSON
@@ -48,7 +48,7 @@ export default function Sealed_Auction_Item() {
       const checkImages = async () => {
           const imgList = [];
           for (let i = 1; i <= 10; i++) { // Assume max 10 images
-              const imgPath = `/imgs/Auction_English/${id}/image${i}.jpg`;
+              const imgPath = `/imgs/Auction_Sealed/${id}/image${i}.jpg`;
             
               // const imgPath = `/imgs/Auction_English/${id}/image${i}.jpg`;
 
@@ -96,7 +96,7 @@ export default function Sealed_Auction_Item() {
     };
 
     try {
-      const response = await fetch(`http://127.0.0.1:8000/Auction_English/auctions/${id}/bid/`, {
+      const response = await fetch(`http://127.0.0.1:8000/Auction_Sealed/auctions/${id}/bid/`, {
 
         
         method: "POST",

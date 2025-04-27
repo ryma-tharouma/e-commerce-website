@@ -22,7 +22,7 @@ export default function Header() {
         </div>
         <div className="flex space-x-4">
           <Link href="/wishlist" className="flex items-center hover:text-[#D4AF37]">
-            Create Wishlist <FiHeart className="ml-1" />
+            Wishlist <FiHeart className="ml-1" />
           </Link>
           <Link href="/signin" className="hover:text-[#D4AF37]">
             Sign in &gt;
@@ -95,33 +95,36 @@ export default function Header() {
               {/* First Column - English Auctions */}
               <div className="px-10 flex flex-col w-1/4 py-8 font-[Georgia]">
                 <p className="py-2 font-semibold text-sm text-gray-500 mb-2">English Auctions</p>
-                <Link href="/Auction_English/form_page" className="py-2 text-[#00060b] hover:text-[#D4AF37] text-xs">
-                  Create an English Auction
-                </Link>
                 <Link href="/Auction_English" className="py-2 text-[#00060b] hover:text-[#D4AF37] text-xs">
                   View All English Auctions
+                </Link>
+
+                <Link href="/Auction_English/form_page" className="py-2 text-[#00060b] hover:text-[#D4AF37] text-xs">
+                  Create an English Auction
                 </Link>
               </div>
 
               {/* Second Column - Sealed Auctions */}
               <div className="py-8 flex flex-col w-1/4 font-[Georgia]">
                 <p className="py-2 font-semibold text-sm text-gray-500 mb-4">Sealed Auctions</p>
-                <Link href="/Auction_Sealed/form_page" className="py-2 text-[#00060b] hover:text-[#D4AF37] text-xs">
-                  Create a Sealed Auction
-                </Link>
                 <Link href="/Auction_Sealed" className="py-2 text-[#00060b] hover:text-[#D4AF37] text-xs">
                   View All Sealed Auctions
+                </Link>
+
+                <Link href="/Auction_Sealed/form_page" className="py-2 text-[#00060b] hover:text-[#D4AF37] text-xs">
+                  Create a Sealed Auction
                 </Link>
               </div>
 
               {/* Third Column - Combinatorial Auctions */}
               <div className="py-8 flex flex-col w-1/4 font-[Georgia]">
                 <p className="py-2 font-semibold text-sm text-gray-500 mb-4">Combinatorial Auctions</p>
-                <Link href="/Auction_Combinatorial/form_page" className="py-2 text-[#00060b] hover:text-[#D4AF37] text-xs">
-                  Create a Combinatorial Auction
-                </Link>
                 <Link href="/Auction_Combinatorial" className="py-2 text-[#00060b] hover:text-[#D4AF37] text-xs">
                   View All Combinatorial Auctions
+                </Link>
+
+                <Link href="/Auction_Combinatorial/form_page" className="py-2 text-[#00060b] hover:text-[#D4AF37] text-xs">
+                  Create a Combinatorial Auction
                 </Link>
               </div>
             </div>

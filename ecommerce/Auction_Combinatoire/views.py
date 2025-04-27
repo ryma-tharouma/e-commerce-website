@@ -1,5 +1,5 @@
 from django.shortcuts import get_object_or_404
-from .models import CombinatorialAuction, CombinatorialBid, Product
+from .models import CombinatorialAuction, CombinatorialBid, Product,Combinatorial_Product
 from rest_framework import viewsets, permissions
 from rest_framework.generics import RetrieveAPIView
 
@@ -71,8 +71,8 @@ def create_Auction(request):
 
 
     #  # Get available products (not already in an auction)
-    products = Product.objects.filter(id__in=product_ids, combinatorial_auctions__isnull=True)
-
+    products = Combinatorial_Product.objects.filter(id__in=product_ids, combinatorial_auctions__isnull=True)
+    print(products)
             # Ensure all selected products are available
     if products.count() != len(product_ids):
                 print("hey gurl error")
@@ -126,7 +126,7 @@ def create_Product(request):
     for index, image in enumerate(images, start=1):  # Start index from 1
         fs = FileSystemStorage(location=product_folder)
         extension = os.path.splitext(image.name)[1]  # Get file extension (e.g., .jpg, .png)
-        filename = f"image{index}{extension}"  # Rename image (image1.jpg, image2.png, etc.)
+        filename = f"image{index}.jpg"  # Rename image (image1.jpg, image2.png, etc.)
         
         file_path = fs.save(filename, image)
         print(f"Saved: {file_path}")
@@ -143,6 +143,52 @@ def get_products(request):
     products = list(unassigned_products.values("id", "name", "description"))
     return JsonResponse(products, safe=False)
 
+def get_combi_products(request):
+    # Get products that are NOT linked to any auction
+    assigned_products = CombinatorialAuction.objects.values_list("products", flat=True)
+    unassigned_products = Combinatorial_Product.objects.exclude(id__in=assigned_products)
+
+    products = list(unassigned_products.values("id", "name", "description"))
+    return JsonResponse(products, safe=False)
+
+@api_view(['POST'])
+@permission_classes([])  # Ajuste les permissions selon tes besoins
+def create_combi_Product(request):
+    data = request.data
+    images = request.FILES.getlist('images')  # Récupère toutes les images envoyées
+    
+    # Récupérer le vendeur (à ajuster selon l'authentification)
+    # seller = User.objects.get(id=data.get('seller_id'))
+    fake_user = get_fake_user()  
+    
+    # when i get user 
+    # user_id = request.data.get("user")
+    # user= User.objects.get(id=user_id) #user_id
+
+    
+    # Créer l'enchère sans images
+    product = Combinatorial_Product.objects.create(
+        name=data.get('title'),
+        description=data.get('description'),
+        seller=fake_user,
+    )
+    
+    # Créer un dossier pour stocker les images 
+    product_folder = os.path.abspath(
+        os.path.join(settings.BASE_DIR, '..', 'frontend', 'public', 'imgs', 'Auction_Combinatoire','Products', str(product.id))
+    )
+    os.makedirs(product_folder, exist_ok=True)
+    
+    for index, image in enumerate(images, start=1):  # Start index from 1
+        fs = FileSystemStorage(location=product_folder)
+        extension = os.path.splitext(image.name)[1]  # Get file extension (e.g., .jpg, .png)
+        filename = f"image{index}.jpg"  # Rename image (image1.jpg, image2.png, etc.)
+        
+        file_path = fs.save(filename, image)
+        print(f"Saved: {file_path}")
+        # Sauvegarde le chemin relatif dans la base de données si besoin (ex: Image model)
+        
+    return Response({"message": "Product created successfully!", "product_id": product.id}, status=status.HTTP_201_CREATED)
 
 from django.db import transaction
 @csrf_exempt  
@@ -172,7 +218,7 @@ def create_bid(request, auction_id):
             #     return JsonResponse({"error": "User not found"}, status=404)
 
             # Vérifier si les produits existent et appartiennent bien à cette enchère
-                products = Product.objects.filter(id__in=product_ids, combinatorial_auctions=auction)
+                products = Combinatorial_Product.objects.filter(id__in=product_ids, combinatorial_auctions=auction)
                 if products.count() != len(product_ids):
                     return JsonResponse({"error": "Invalid products for this auction"}, status=400)
 

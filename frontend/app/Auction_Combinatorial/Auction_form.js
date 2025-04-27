@@ -46,13 +46,13 @@ export default function CreateAuction() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    const form = new FormData();
     images.forEach((image) => form.append("images", image));
     if (selectedProducts.length === 0) {
       setError("Please select at least one product.");
       return;
     }
     
-    const form = new FormData();
     Object.entries(formData).forEach(([key, value]) => form.append(key, value));
     form.append("products", JSON.stringify(selectedProducts));
 
