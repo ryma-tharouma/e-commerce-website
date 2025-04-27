@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Checkout Details</title>
+</head>
+<body>
+    <h1>Checkout Details</h1>
+    <p><strong>Entity ID:</strong> {{ checkout.entity_id }}</p>
+    <p><strong>Amount:</strong> {{ checkout.amount }} DZD</p>
+    <p><strong>Status:</strong> {{ checkout.status }}</p>
+    <p><strong>Payment Method:</strong> {{ checkout.payment_method }}</p>
+    <p><strong>Description:</strong> {{ checkout.description }}</p>
+    <p><strong>Checkout URL:</strong> <a href="{{ checkout.checkout_url }}" target="_blank">Pay Now</a></p>
+
+    <a href="{% url 'checkout_list' %}">Back to Checkout List</a>
+</body>
+</html>

@@ -1,6 +1,9 @@
 "use client";
 import Link from "next/link";
 import Image from "next/image";
+import Header from "../../../components/Header";
+import Footer from "../../../components/Footer";
+
 import {
   FiPhone,
   FiMail,
@@ -9,7 +12,7 @@ import {
   FiSearch,
 } from "react-icons/fi";
 import { useCart } from "./CartContext";
-import Header from "../../../components/Header";
+import { useState } from "react";
 
 export default function Cart() {
   const {
@@ -20,13 +23,17 @@ export default function Cart() {
     create_checkout_session,
   } = useCart();
   const total = cart.reduce((sum, item) => sum + item.subtotal, 0);
+  const [paymentMethod, setPaymentMethod] = useState("stripe");
+
   //console.log("🛒 Contenu du panier :", cart);
   return (
-    <div className="min-h-screen flex flex-col justify-between bg-gray-100 font-serif">
-      <Header />
+    <div className="min-h-screen flex flex-col justify-between bg-gray-100">
+      {/* HEADER */}
+      <Header/>
+
       {/* MAIN CONTENT */}
-      <main className="flex-grow px-8 py-12">
-        <h1 className="text-2xl font-[Georgia] font-light tracking-wide mb-8 text-gray-800">Shopping Bag</h1>
+      <main className="flex flex-col items-center justify-center flex-grow min-h-[50vh] py-10">
+        <h1 className="text-4xl font-[Georgia] font-bold mb-6">Shopping Bag</h1>
 
         {cart.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-12">
@@ -46,7 +53,7 @@ export default function Cart() {
               <div className="w-full md:w-2/3 space-y-6 bg-white p-8 shadow-sm rounded-sm">
                 <div>
                   <Link href="/">
-                    <button className="text-gray-600 hover:text-gray-900 font-light tracking-wide cursor-pointer transition-colors duration-300">
+                    <button className="text-yellow-600 hover:underline font-medium cursor-pointer">
                       ← Continue Browsing
                     </button>
                   </Link>
@@ -150,9 +157,31 @@ export default function Cart() {
                     <span className="font-light">${total}</span>
                   </div>
                 </div>
+                <div className="grid grid-cols-2 gap-4">
+                  <button
+                    onClick={() => setPaymentMethod("stripe")}
+                    className={`border rounded-md px-4 py-2 text-sm font-medium transition ${
+                      paymentMethod === "stripe"
+                        ? "border-yellow-600 bg-yellow-100 text-yellow-800"
+                        : "border-gray-300 bg-white text-gray-700 hover:bg-gray-50"
+                    }`}
+                  >
+                    💳 Stripe
+                  </button>
+                  <button
+                    onClick={() => setPaymentMethod("edahabia")}
+                    className={`border rounded-md px-4 py-2 text-sm font-medium transition ${
+                      paymentMethod === "edahabia"
+                        ? "border-yellow-600 bg-yellow-100 text-yellow-800"
+                        : "border-gray-300 bg-white text-gray-700 hover:bg-gray-50"
+                    }`}
+                  >
+                    🧾 Edahabia
+                  </button>
+                </div>
                 <button
-                  onClick={() => create_checkout_session()}
-                  className="mt-8 w-full bg-gray-900 hover:bg-gray-800 text-white py-4 rounded-sm text-lg font-light tracking-wide cursor-pointer transition-colors duration-300"
+                  onClick={() => create_checkout_session(paymentMethod)}
+                  className="mt-6 w-full bg-yellow-600 hover:bg-yellow-700 text-white py-3 rounded-md text-lg font-medium cursor-pointer"
                 >
                   CHECKOUT
                 </button>
@@ -163,54 +192,7 @@ export default function Cart() {
       </main>
 
       {/* FOOTER */}
-      <footer className="bg-white shadow-sm py-8 text-gray-600">
-        <div className="container mx-auto grid grid-cols-2 md:grid-cols-4 gap-8 px-8 text-sm">
-          {[
-            {
-              title: "Shop",
-              links: ["Recent Acquisitions", "Antiques", "Jewelry", "Fine Art"],
-            },
-            {
-              title: "Can We Help?",
-              links: ["Customer Care", "FAQs", "Design Services", "Contact Us"],
-            },
-            {
-              title: "Our Company",
-              links: ["Buy with Confidence", "Events", "Sell to Us", "Careers"],
-            },
-          ].map((section, index) => (
-            <div key={index}>
-              <h3 className="font-light tracking-wide mb-4">{section.title}</h3>
-              <ul className="space-y-2">
-                {section.links.map((link, i) => (
-                  <li
-                    key={i}
-                    className="flex items-center hover:text-gray-900 cursor-pointer transition-colors duration-300 font-light"
-                  >
-                    {link}
-                  </li>
-                ))}
-              </ul>
-            </div>
-          ))}
-
-          {/* Newsletter */}
-          <div>
-            <h3 className="font-light tracking-wide mb-4">Get The Latest</h3>
-            <input
-              type="email"
-              placeholder="Email Address"
-              className="border border-gray-200 p-2 w-full rounded-sm hover:border-gray-300 focus:border-gray-400 transition-colors duration-300 font-light"
-            />
-            <button className="mt-3 px-4 py-2 bg-gray-900 text-white rounded-sm hover:bg-gray-800 w-full cursor-pointer transition-colors duration-300 font-light tracking-wide">
-              Join
-            </button>
-          </div>
-        </div>
-        <div className="text-center text-xs mt-8 font-light">
-          © 2025 M.S. Rau | Privacy | Site Map
-        </div>
-      </footer>
+      <Footer />
     </div>
   );
 }
