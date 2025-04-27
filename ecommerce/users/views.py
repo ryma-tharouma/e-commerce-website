@@ -5,6 +5,7 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework_simplejwt.tokens import RefreshToken
 from django.contrib.auth import authenticate
 from rest_framework.decorators import api_view, permission_classes
+from rest_framework_simplejwt.token_blacklist.models import BlacklistedToken, OutstandingToken
 
 from .serializers import RegisterSerializer, User, UserProfileSerializer
 
@@ -44,3 +45,14 @@ def profile_view(request):
     serializer = UserProfileSerializer(request.user)
     return Response(serializer.data)
 
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def logout_view(request):
+    try:
+        refresh_token = request.data['refresh']
+        token = RefreshToken(refresh_token)
+        token.blacklist()
+        return Response({"detail": "Successfully logged out."})
+    except Exception as e:
+        return Response({"error": str(e)}, status=400)

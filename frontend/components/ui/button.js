@@ -1,6 +1,6 @@
 "use client";
 import React from "react";
-import { cn } from "@/lib/utils";
+import { cn } from "/lib/utils";
 
 const Button = React.forwardRef(({ className, variant = "default", ...props }, ref) => {
   const base =

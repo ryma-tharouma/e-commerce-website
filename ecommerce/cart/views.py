@@ -1,3 +1,4 @@
+import json
 from django.shortcuts import render, get_object_or_404
 from django.conf import settings
 from django.http import JsonResponse, FileResponse
@@ -14,7 +15,11 @@ from .models import CartItem, Product, Order, OrderItem
 from django.views.decorators.csrf import csrf_exempt
 from django.http import HttpResponse
 from django.http import HttpResponseRedirect
+from .serializers import OrderSerializer, ProductSerializer,OrderItemSerializer
+from rest_framework import status
 
+from rest_framework.decorators import api_view, permission_classes
+from rest_framework.permissions import IsAuthenticated
 
 
 # Stripe Configuration
@@ -96,28 +101,53 @@ def generate_invoice(order):
     buffer.seek(0)
     return buffer
 
+# @api_view(['POST'])
+# def add_to_cart(request, product_id):
+#     #print("Cookies reçus :", request.COOKIES)  # 🔍 Vérifie si 'sessionid' est bien là
+#     session_id = request.session.session_key
+#     product = get_object_or_404(Product, id=product_id)
+#     quantity = int(request.data.get('quantity', 1))
+#     # print("🔑 Session actuelle dans add cart:", request.session.session_key)
+#     # print("🔒 Cookies reçus dans add cart :", request.COOKIES)
+
+#     print("Session key après load dans add to cart :", session_id)
+#     if not session_id:
+#         print("❌ Session introuvable, problème de cookie ?")
+#         return Response({'error': 'Session non trouvée'}, status=400)
+
+#     if product.stock < quantity:
+#         return Response({'error': 'Stock insuffisant'}, status=400)
+
+#     cart_item, created = CartItem.objects.get_or_create(
+#             product=product,
+#             session_id=session_id,
+#             defaults={'quantity': 1}
+#     )
+#     if not created:
+#         cart_item.quantity += quantity
+#     cart_item.save()
+
+#     product.stock -= quantity
+#     product.save()
+
+#     return Response({'message': 'Produit ajouté au panier', 'cart': list_cart(session_id)})
+
 @api_view(['POST'])
+@permission_classes([IsAuthenticated])
 def add_to_cart(request, product_id):
-    #print("Cookies reçus :", request.COOKIES)  # 🔍 Vérifie si 'sessionid' est bien là
     session_id = request.session.session_key
     product = get_object_or_404(Product, id=product_id)
     quantity = int(request.data.get('quantity', 1))
-    # print("🔑 Session actuelle dans add cart:", request.session.session_key)
-    # print("🔒 Cookies reçus dans add cart :", request.COOKIES)
 
-    print("Session key après load dans add to cart :", session_id)
-    if not session_id:
-        print("❌ Session introuvable, problème de cookie ?")
-        return Response({'error': 'Session non trouvée'}, status=400)
-
-    if product.stock < quantity:
-        return Response({'error': 'Stock insuffisant'}, status=400)
-
+    print("Session key:", session_id)
+    
+    # Save CartItem with user if authenticated
     cart_item, created = CartItem.objects.get_or_create(
-            product=product,
-            session_id=session_id,
-            defaults={'quantity': 1}
+        product=product,
+        user=request.user,
+        defaults={'quantity': 1}
     )
+
     if not created:
         cart_item.quantity += quantity
     cart_item.save()
@@ -125,7 +155,8 @@ def add_to_cart(request, product_id):
     product.stock -= quantity
     product.save()
 
-    return Response({'message': 'Produit ajouté au panier', 'cart': list_cart(session_id)})
+    return Response({'message': 'Produit ajouté au panier','cart': list_cart(session_id)})
+
 
 
 @api_view(['POST'])
@@ -175,7 +206,26 @@ def get_cart(request):
         return Response({'error': 'Session non trouvée'}, status=400)
     return Response(list_cart(session_id))
 
+# views.py
+from django.http import JsonResponse
+# from django.views.decorators.csrf import csrf_exempt
+# from .models import Product
 
+@api_view(['POST'])
+def create_product(request):
+    if request.method == 'POST':
+        # Initialize the serializer with the incoming data
+        serializer = ProductSerializer(data=request.data)
+        
+        # Check if the data is valid
+        if serializer.is_valid():
+            # Save the product if data is valid
+            product = serializer.save()
+            return Response({"message": "Product created successfully", "product_id": product.id}, status=201)
+        else:
+            # Return validation errors if data is invalid
+            return Response({"error": serializer.errors}, status=400)
+    return Response({"error": "Invalid request method"}, status=405)
 
 
 @api_view(['GET'])
@@ -283,3 +333,70 @@ def send_invoice_email(user_email, order, pdf_buffer):
 
 
 
+# @api_view(['POST'])
+# def create_order(request):
+#     # Assuming the user is authenticated
+#     user = request.user  # Get the user from request
+    
+#     # 1. Get cart items for the user/session
+#     cart_items = CartItem.objects.filter(session_id=request.session.session_key)
+    
+#     if not cart_items:
+#         return Response({"error": "Cart is empty"}, status=status.HTTP_400_BAD_REQUEST)
+    
+#     # 2. Create an order
+#     total_price = 0
+#     order = Order.objects.create(total_price=total_price)
+    
+#     # 3. Add OrderItems for each cart item
+#     for cart_item in cart_items:
+#         product = cart_item.product
+#         order_item = OrderItem.objects.create(
+#             order=order,
+#             product=product,
+#             quantity=cart_item.quantity
+#         )
+#         total_price += order_item.subtotal()  # Update total price based on items
+        
+#     order.total_price = total_price  # Update order's total price
+#     order.save()
+    
+#     # 4. Clear the cart
+#     cart_items.delete()  # Clear cart after order is placed
+    
+#     # 5. Return the created order details
+#     return Response(OrderSerializer(order).data, status=status.HTTP_201_CREATED)
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])  # Important
+def create_order(request):
+    user = request.user  # Get the authenticated user from token
+
+    # 1. Get cart items for the user
+    cart_items = CartItem.objects.filter(user=user)
+
+    if not cart_items.exists():
+        return Response({"error": "Cart is empty"}, status=status.HTTP_400_BAD_REQUEST)
+
+    # 2. Create an order
+    total_price = 0
+    order = Order.objects.create(user=user, total_price=total_price)  # link order to user maybe?
+
+    # 3. Add OrderItems for each cart item
+    for cart_item in cart_items:
+        product = cart_item.product
+        order_item = OrderItem.objects.create(
+            order=order,
+            product=product,
+            quantity=cart_item.quantity
+        )
+        total_price += order_item.subtotal()
+
+    order.total_price = total_price
+    order.save()
+
+    # 4. Clear the cart
+    cart_items.delete()
+
+    # 5. Return the created order details
+    return Response(OrderSerializer(order).data, status=status.HTTP_201_CREATED)

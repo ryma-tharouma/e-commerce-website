@@ -1,8 +1,8 @@
 "use client"
 import { useState } from "react"
 import axios from "axios"
-import { Card } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
+import { Card } from "/components/ui/card"
+import { Button } from "/components/ui/button"
 import { UserRound, Mail, Lock } from "lucide-react" // Importing the icons
 
 const registerUser = async (userData) => {

@@ -54,6 +54,7 @@ INSTALLED_APPS = [
     'django_q',
     'cart',
     'users',
+    'shipment',
 
 ]
 
@@ -211,3 +212,8 @@ Q_CLUSTER = {
 
 AUTH_USER_MODEL = 'users.CustomUser'
 APPEND_SLASH = False
+
+STORE_TOKEN = os.getenv('STORE_TOKEN')
+ORDER_API_URL = os.getenv("ORDER_API_URL")
+STORE_ID = os.getenv("STORE_ID")
+DELIVERY_API_URL = os.getenv("DELIVERY_API_URL")

@@ -1,5 +1,6 @@
 from rest_framework import serializers
 from django.contrib.auth import get_user_model
+from Auction_English.models import EnglishBid
 
 User = get_user_model()
 
@@ -19,7 +20,19 @@ class RegisterSerializer(serializers.ModelSerializer):
         )
         return user
 
+# class UserProfileSerializer(serializers.ModelSerializer):
+#     class Meta:
+#         model = User
+#         fields = ['username', 'email', 'role']
+
+class UserBidSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = EnglishBid
+        fields = ['auction', 'amount', 'timestamp']
+
 class UserProfileSerializer(serializers.ModelSerializer):
+    bids = UserBidSerializer(many=True, read_only=True, source='english_auction_bidder')
+
     class Meta:
         model = User
-        fields = ['username', 'email', 'role']
+        fields = ['username', 'email', 'role', 'bids']
