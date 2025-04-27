@@ -2,7 +2,7 @@ from django.shortcuts import get_object_or_404
 from .models import CombinatorialAuction, CombinatorialBid, Product,Combinatorial_Product
 from rest_framework import viewsets, permissions
 from rest_framework.generics import RetrieveAPIView
-
+from django.core.exceptions import ValidationError
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from .serializers import AuctionSerializer
@@ -50,6 +50,7 @@ def get_products_auction(request,id):
 @permission_classes([])  # Ajuste les permissions selon tes besoins
 def create_Auction(request):
     data = request.data
+    images = request.FILES.getlist('images')  # Récupère toutes les images envoyées
     
     # Récupérer le vendeur (à ajuster selon l'authentification)
     # seller = User.objects.get(id=data.get('seller_id'))
@@ -90,8 +91,22 @@ def create_Auction(request):
     print("Products before setting:", products)  # Debugging
     auction.products.set(products)
     print("Products after setting:", list(auction.products.all()))  # Debugging
-
-     
+    
+    # Créer un dossier pour stocker les images (ex: media/auctions/{auction.id}/)
+    auction_folder = os.path.abspath(
+        os.path.join(settings.BASE_DIR, '..', 'frontend', 'public', 'imgs', 'Auction_Combinatoire', str(auction.id))
+    )
+    os.makedirs(auction_folder, exist_ok=True)
+    
+    for index, image in enumerate(images, start=1):  # Start index from 1
+        fs = FileSystemStorage(location=auction_folder)
+        extension = os.path.splitext(image.name)[1]  # Get file extension (e.g., .jpg, .png)
+        filename = f"image{index}{extension}"  # Rename image (image1.jpg, image2.png, etc.)
+        
+        file_path = fs.save(filename, image)
+        print(f"Saved: {file_path}")
+        # Sauvegarde le chemin relatif dans la base de données si besoin (ex: Image model)
+    
     return Response({"message": "Auction created successfully!", "auction_id": auction.id}, status=status.HTTP_201_CREATED)
 
 
@@ -235,6 +250,8 @@ def create_bid(request, auction_id):
             return JsonResponse({"error": "Invalid JSON format"}, status=400)
         except Exception as e:
             return JsonResponse({"error": str(e)}, status=500)
+        except ValidationError as e:
+            return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
     
 
 

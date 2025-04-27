@@ -106,13 +106,15 @@ export default function Sealed_Auction_Item() {
         body: JSON.stringify(bidData),
       });
       console.log("Reponse brute:", response);
+      
       if (!response.ok) {
-        console.log("Error Details:", errorData); 
-        throw new Error("Bid failed! Please enter a valid amount.");
+        const errorData = await response.json();
+        throw new Error(errorData.error);
       }
 
       const data = await response.json();
       // setAuction((prev) => ({ ...prev, current_price: data.new_price }));
+      alert("Bid Placed successfully!");
       setBidAmount(""); // Réinitialiser le champ
     } catch (error) {
       setError(error.message);
@@ -184,6 +186,8 @@ export default function Sealed_Auction_Item() {
           value={bidAmount}
           onChange={(e) => setBidAmount(e.target.value)}
           />
+            <h2 className=" mt-2 text-center text-red-500 text-m">{error}</h2>
+
         </div>)}
 
       </div>

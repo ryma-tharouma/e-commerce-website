@@ -107,6 +107,7 @@ export default function English_Auction_Item() {
       const data = await response.json();
       setAuction((prev) => ({ ...prev, current_price: data.new_price }));
       setBidAmount(""); // Réinitialiser le champ
+      alert("Bid placed successfully!");
     } catch (error) {
       setError(error.message);
     }

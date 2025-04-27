@@ -40,7 +40,8 @@ export default function CreateAuction() {
         throw new Error("Error creating auction");
       }
 
-      alert("Auction created successfully!");
+      alert("Sealed Auction created successfully!");
+      window.location.reload();
     } catch (error) {
       setError(error.message);
     }

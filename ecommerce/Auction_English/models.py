@@ -4,6 +4,7 @@ from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
 from django.utils.timezone import now
 from django.contrib.auth import get_user_model
+from rest_framework.response import Response
 
 def get_admin_user():
     admin_user=get_user_model().objects.filter(is_superuser=True).first()  # Get the first admin user
@@ -63,6 +64,7 @@ class EnglishBid(models.Model):
         if self.auction.is_active==False :
             raise ValidationError("Auction ended")
         if (self.amount <= self.auction.starting_price):
+            
             raise ValidationError("Your bid must be higher than the starting price.")
         if (self.amount <= self.auction.current_price ):
             raise ValidationError("Your bid must be higher than the current price.")

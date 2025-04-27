@@ -41,6 +41,7 @@ export default function CreateAuction() {
       }
 
       alert("Auction created successfully!");
+      window.location.reload();
     } catch (error) {
       setError(error.message);
     }
@@ -48,7 +49,7 @@ export default function CreateAuction() {
 
   return (
     <div className="min-h-screen p-5 bg-gray-100">
-    <div className="max-w-2xl mx-auto p-8 bg-white shadow-lg ">
+    <div className="max-w-2xl mx-auto p-8 mb-2 bg-white shadow-lg ">
       {/* Title */}
       <h2 className="text-3xl font-[Georgia] text-center mb-2">Create an English Auction</h2>
       <div className="w-70 h-0.5 bg-yellow-500 mx-auto mb-6"></div>

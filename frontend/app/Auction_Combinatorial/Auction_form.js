@@ -67,6 +67,8 @@ export default function CreateAuction() {
       }
 
       alert("Auction created successfully!");
+      window.location.reload();
+
     } catch (error) {
       setError(error.message);
       alert(error.message);
