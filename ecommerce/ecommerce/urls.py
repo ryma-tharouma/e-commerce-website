@@ -1,33 +1,23 @@
-"""
-URL configuration for ecommerce project.
-
-The `urlpatterns` list routes URLs to views. For more information please see:
-    https://docs.djangoproject.com/en/4.2/topics/http/urls/
-Examples:
-Function views
-    1. Add an import:  from my_app import views
-    2. Add a URL to urlpatterns:  path('', views.home, name='home')
-Class-based views
-    1. Add an import:  from other_app.views import Home
-    2. Add a URL to urlpatterns:  path('', Home.as_view(), name='home')
-Including another URLconf
-    1. Import the include() function: from django.urls import include, path
-    2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
-"""
 from django.contrib import admin
 from django.urls import path,include
 from rest_framework_simplejwt.views import TokenRefreshView 
 from Auction_English.views import get_user_bids,success
+from payment.views import checkout
+
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/cart/', include('cart.urls')),  # On inclut les URLs de l'application "cart"
     path('api/users/', include('users.urls')),
-     path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
+    path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
     path('Auction_English/', include('Auction_English.urls')),
     path('Auction_Sealed/', include('Auction_Sealed.urls')),
     path('Auction_Combinatoire/', include('Auction_Combinatoire.urls')),
     path('Bids/<int:user_id>',get_user_bids, name="get_user_bids" ),
     path('Bids/pay/success/<int:order_id>',success, name="success" ),
     path('api/shipment/', include('shipment.urls')),
+    path('payment/',include('payment.urls')),
+    path('api/cart/', include('cart.urls')), 
+    path('inventory/', include('inventory.urls')),  
+    path('Bids/pay/success/<int:order_id>', success, name="success"),  
 
 ]

@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/4.2/ref/settings/
 """
 
 from pathlib import Path
+import environ 
 import stripe
 import os
 from dotenv import load_dotenv
@@ -49,13 +50,13 @@ INSTALLED_APPS = [
     # les encheres 
     "Auction_English",
     "Auction_Sealed",
-    "Auction_Combinatoire",
-    
+    "Auction_Combinatoire",  
+    'payment',
     'django_q',
     'cart',
     'users',
     'shipment',
-
+    'inventory'
 ]
 
 MIDDLEWARE = [
@@ -209,7 +210,6 @@ Q_CLUSTER = {
     'orm': 'default',  # Uses Django's database as broker
 }
 
-
 AUTH_USER_MODEL = 'users.CustomUser'
 APPEND_SLASH = False
 
@@ -217,3 +217,20 @@ STORE_TOKEN = os.getenv('STORE_TOKEN')
 ORDER_API_URL = os.getenv("ORDER_API_URL")
 STORE_ID = os.getenv("STORE_ID")
 DELIVERY_API_URL = os.getenv("DELIVERY_API_URL")
+
+CSRF_TRUSTED_ORIGINS = [
+    "http://localhost:3000", 
+]
+
+
+
+env = environ.Env()
+BASE_DIR = Path(__file__).resolve().parent.parent
+environ.Env.read_env(BASE_DIR / ".env")
+
+CHARGILY_API_KEY = env("CHARGILY_API_KEY")
+CHARGILY_SECRET = env("CHARGILY_SECRET_KEY")
+CHARGILY_URL = "https://pay.chargily.net/test/api/v2/"
+CHARGILY_INVOICE_URL = "https://epay.chargily.com.dz/api/invoice"
+BACK_URL = env("BACK_URL")
+

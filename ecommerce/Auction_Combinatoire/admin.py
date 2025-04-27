@@ -1,6 +1,6 @@
 
 from django.contrib import admin
-from .models import CombinatorialAuction, CombinatorialBid, Product
+from .models import CombinatorialAuction, CombinatorialBid, Combinatorial_Product
 from .forms import CombinatorialBidForm  # import your form
 
 class ProductInline(admin.TabularInline):
@@ -8,7 +8,7 @@ class ProductInline(admin.TabularInline):
     model = CombinatorialAuction.products.through  # Relation ManyToMany
     extra = 1  # Nombre de lignes vides à afficher
 
-@admin.register(Product)
+@admin.register(Combinatorial_Product)
 class ProductAdmin(admin.ModelAdmin):
     list_display = ("name", "description")
     search_fields = ("name",)

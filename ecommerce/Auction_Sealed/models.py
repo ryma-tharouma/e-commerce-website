@@ -4,6 +4,8 @@ from django.db import models
 from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
 from Auction_English.models import get_admin_user
+from rest_framework.response import Response
+
 
 # from django.utils.timezone import now
 
@@ -57,6 +59,8 @@ class SealedBid(models.Model):
         
         if SealedBid.objects.filter(auction=self.auction, bidder=self.bidder).exists():
             raise ValidationError("You have already placed a bid for this auction.")
+            return Response({"error": "Your bid must be higher than the current price"}, status=400)
+            
         
         if (self.amount <= self.auction.starting_price):
             raise ValidationError("Your bid must be higher than the starting price.")

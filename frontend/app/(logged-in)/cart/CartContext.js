@@ -61,21 +61,33 @@ export function CartProvider({ children }) {
   };
   
   
-  const create_checkout_session = async () => {
+  const create_checkout_session = async (paymentMethod) => {
     try {
-      const response = await axios.get('http://localhost:8000/api/cart/api/checkout-session/', {
-        headers: {
-          'Content-Type': 'application/json',
-          'X-CSRFToken': getCookie('csrftoken'),
-        },
-        withCredentials: true
-      });
+      let url = '';
   
-      if (!response.data || !response.data.url) {
-        throw new Error('Invalid response from server.');
+      if (paymentMethod === 'stripe') {
+        const response = await axios.get('http://localhost:8000/api/cart/api/checkout-session/', {
+          headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': getCookie('csrftoken'),
+          },
+          withCredentials: true,
+        });
+  
+        if (!response.data || !response.data.url) {
+          throw new Error('Invalid response from server.');
+        }
+  
+        url = response.data.url;
+  
+      } else if (paymentMethod === 'edahabia') {
+        url = 'http://localhost:8000/payment/checkout/';
+      } else {
+        throw new Error('Unsupported payment method selected.');
       }
   
-      window.location.href = response.data.url;
+      window.location.href = url;
+  
     } catch (error) {
       console.error("Checkout error:", error.response ? error.response.data : error.message);
       alert(error.response ? error.response.data.error : 'An unexpected error occurred');

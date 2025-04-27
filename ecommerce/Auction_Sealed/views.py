@@ -6,7 +6,7 @@ from rest_framework.response import Response
 from rest_framework.decorators import api_view,permission_classes
 from rest_framework.generics import RetrieveAPIView
 from django.contrib.auth.models import User
-
+from django.core.exceptions import ValidationError
 import os
 from django.core.files.storage import FileSystemStorage
 from django.conf import settings
@@ -62,6 +62,8 @@ def place_bid(request, id):
         return Response({"message": "Bid placed successfully"})
     except SealedAuctionItem.DoesNotExist:
         return Response({"error": "Auction not found"}, status=404)
+    except ValidationError as e:
+        return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
         
 
 @api_view(['POST'])

@@ -46,7 +46,7 @@ def create_product_for_delivery(product, store_id):
         response_data = response.json()
 
         # Assuming the response contains the 'product_id' key
-        product_id_delivery = response_data.get('id')
+        product_id_delivery = response_data.get('product_id')
         print("Response Data:", response_data)
         # Save the external product ID to the local product's `product_id_delivery` field
         product.product_id_delivery = product_id_delivery

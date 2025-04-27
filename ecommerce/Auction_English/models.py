@@ -85,8 +85,9 @@ from django.db import models
 from django.core.exceptions import ValidationError
 from django.utils.timezone import now
 from django.contrib.auth import get_user_model
+from rest_framework.response import Response
 
-User = get_user_model()  # ✅ use your CustomUser model
+User = get_user_model()  
 # User = settings.AUTH_USER_MODEL  
 def get_admin_user():
     admin_user = User.objects.filter(is_superuser=True).first()
@@ -154,9 +155,16 @@ class EnglishBid(models.Model):
     timestamp = models.DateTimeField(auto_now_add=True)
 
     def clean(self):
-        if not self.auction.is_active:
-            raise ValidationError("Auction has ended")
-        if self.amount <= self.auction.starting_price:
+# <<<<<<< HEAD
+#         if not self.auction.is_active:
+#             raise ValidationError("Auction has ended")
+#         if self.amount <= self.auction.starting_price:
+# =======
+        """ Ensure user can bid before time ends and  only once per auction """
+        if self.auction.is_active==False :
+            raise ValidationError("Auction ended")
+        if (self.amount <= self.auction.starting_price):
+            
             raise ValidationError("Your bid must be higher than the starting price.")
         if self.amount <= self.auction.current_price:
             raise ValidationError("Your bid must be higher than the current price.")

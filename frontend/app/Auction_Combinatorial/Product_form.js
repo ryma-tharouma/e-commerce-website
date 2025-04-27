@@ -36,6 +36,7 @@ export default function CreateProduct() {
       }
 
       alert("Product created successfully!");
+      window.location.reload();
     } catch (error) {
       setError(error.message);
     }

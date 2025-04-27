@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Make a Payment</title>
+    <style>
+        body { font-family: Arial, sans-serif; text-align: center; padding: 20px; }
+        form { max-width: 400px; margin: auto; background: #f8f9fa; padding: 20px; border-radius: 10px; }
+        input, select, button { width: 100%; padding: 10px; margin-top: 10px; }
+        button { background: #28a745; color: white; border: none; cursor: pointer; }
+        button:hover { background: #218838; }
+    </style>
+</head>
+<body>
+    <h2>Make a Payment</h2>
+    <form method="POST" action="{% url 'process_payment' %}">
+        {% csrf_token %}
+        <label for="amount">Amount (DZD):</label>
+        <input type="number" name="amount" id="amount" required>
+
+        <label for="method">Payment Method:</label>
+        <select name="method" id="method" required>
+            <option value="CIB">CIB</option>
+            <option value="EDAHABIA">EDAHABIA</option>
+        </select>
+
+        <button type="submit">Proceed to Payment</button>
+    </form>
+</body>
+</html>

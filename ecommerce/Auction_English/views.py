@@ -12,6 +12,7 @@ from django.conf import settings
 from rest_framework import status
 from datetime import datetime
 from decimal import Decimal
+from django.core.exceptions import ValidationError
 
 from io import BytesIO
 from django.core.mail import EmailMessage
@@ -71,7 +72,8 @@ def place_bid(request, id):
         return Response({"message": "Bid placed successfully", "new_price": auction.current_price})
     except EnglishAuctionItem.DoesNotExist:
         return Response({"error": "Auction not found"}, status=404)
-        
+    except ValidationError as e:
+        return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)        
 
 
 @api_view(['POST'])
@@ -178,7 +180,6 @@ def get_user_bids(request, user_id):
         # Fetch the user from the database
         user = User.objects.get(id=user_id)
         
-
         # Fetch bids for the user from all relevant models
         english_bids = EnglishBid.objects.filter(bidder=user)
         sealed_bids = SealedBid.objects.filter(bidder=user)
