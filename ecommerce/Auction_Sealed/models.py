@@ -1,3 +1,4 @@
+from django.conf import settings
 from django.contrib.auth.models import AbstractUser
 from django.db import models
 from django.contrib.auth.models import User
@@ -13,7 +14,7 @@ class SealedAuctionItem(models.Model):
     description = models.TextField()
 
     # product = models.ForeignKey(Product, on_delete=models.CASCADE,related_name="sealed_auctions_product",default=1)
-    seller = models.ForeignKey(User, on_delete=models.CASCADE, default=get_admin_user)
+    seller = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, default=get_admin_user)
     
     starting_price = models.DecimalField(max_digits=10, decimal_places=2)
     # current_price = models.DecimalField(max_digits=10, decimal_places=2, default=0)
@@ -25,7 +26,7 @@ class SealedAuctionItem(models.Model):
     
     is_active = models.BooleanField(default=True)
     
-    winner = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, related_name="won_sealed_auctions")
+    winner = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, blank=True, related_name="won_sealed_auctions")
     Winning_price = models.DecimalField(max_digits=10, decimal_places=2, default=0)
     # winning_bid = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, related_name="won_sealed_auctions")
 
@@ -47,7 +48,7 @@ class SealedAuctionItem(models.Model):
 
 class SealedBid(models.Model):
     auction = models.ForeignKey(SealedAuctionItem, on_delete=models.CASCADE,related_name="sealed_auction_bids")
-    bidder = models.ForeignKey(User, on_delete=models.CASCADE,related_name="sealed_auction_bidder")
+    bidder = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE,related_name="sealed_auction_bidder")
     amount = models.DecimalField(max_digits=10, decimal_places=2)
     timestamp = models.DateTimeField(auto_now_add=True)
     

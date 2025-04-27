@@ -45,16 +45,17 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    # Ajout de Django REST Framework
     'rest_framework',
-    # Notre application panier et paiement
-    'cart',
+    'rest_framework_simplejwt.token_blacklist',
     # les encheres 
     "Auction_English",
     "Auction_Sealed",
     "Auction_Combinatoire",  
     'payment',
     'django_q',
+    'cart',
+    'users',
+    'shipment',
     'inventory'
 ]
 
@@ -134,6 +135,7 @@ USE_I18N = True
 USE_TZ = True
 
 
+
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/4.2/howto/static-files/
 
@@ -163,6 +165,7 @@ REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': [
         'rest_framework.authentication.SessionAuthentication',
         'rest_framework.authentication.BasicAuthentication',
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
     ],
     
     'DEFAULT_PERMISSION_CLASSES': [
@@ -173,13 +176,12 @@ REST_FRAMEWORK = {
 
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:3000",  # Autorise Next.js
+    #"http://127.0.0.1:3000",
 ]
 
-SESSION_ENGINE = 'django.contrib.sessions.backends.db'  # 🔹 Sessions stockées en base de données
-
-
-#CORS_ALLOW_ALL_ORIGINS = True  # Autoriser tous les domaines
+CORS_ALLOW_ALL_ORIGINS = False  # Autoriser tous les domaines
 CORS_ALLOW_CREDENTIALS = True  # Autoriser les cookies et tokens
+CORS_ALLOW_ALL_ORIGINS = True
 
 # SESSION_COOKIE_NAME = 'sessionid'  # Nom du cookie de session
 # SESSION_COOKIE_AGE = 3600 * 24 * 7   # Durée de session : 1 jour
@@ -208,6 +210,14 @@ Q_CLUSTER = {
     'orm': 'default',  # Uses Django's database as broker
 }
 
+AUTH_USER_MODEL = 'users.CustomUser'
+APPEND_SLASH = False
+
+STORE_TOKEN = os.getenv('STORE_TOKEN')
+ORDER_API_URL = os.getenv("ORDER_API_URL")
+STORE_ID = os.getenv("STORE_ID")
+DELIVERY_API_URL = os.getenv("DELIVERY_API_URL")
+
 CSRF_TRUSTED_ORIGINS = [
     "http://localhost:3000", 
 ]
@@ -223,3 +233,4 @@ CHARGILY_SECRET = env("CHARGILY_SECRET_KEY")
 CHARGILY_URL = "https://pay.chargily.net/test/api/v2/"
 CHARGILY_INVOICE_URL = "https://epay.chargily.com.dz/api/invoice"
 BACK_URL = env("BACK_URL")
+

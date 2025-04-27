@@ -1,3 +1,4 @@
+from django.conf import settings
 from django.db import models
 from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
@@ -13,7 +14,7 @@ from decimal import Decimal
 class Product(models.Model):
     name = models.CharField(max_length=255)
     description = models.TextField()
-    seller = models.ForeignKey(User, on_delete=models.CASCADE)
+    seller = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     
     def __str__(self):
         return self.name
@@ -22,7 +23,7 @@ class Product(models.Model):
 class Combinatorial_Product(models.Model):
     name = models.CharField(max_length=255)
     description = models.TextField()
-    seller = models.ForeignKey(User, on_delete=models.CASCADE)
+    seller = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     
     def __str__(self):
         return self.name    
@@ -30,14 +31,14 @@ class CombinatorialAuction(models.Model):
     title = models.CharField(max_length=255, editable=True)
     description = models.TextField(default=" ")
 
-    seller = models.ForeignKey(User, on_delete=models.CASCADE,default=get_admin_user)
+    seller = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE,default=get_admin_user)
 
     products = models.ManyToManyField(Combinatorial_Product, related_name="combinatorial_auctions")
 
     start_time = models.DateTimeField(auto_now_add=True)
     end_time = models.DateTimeField()
     
-    Winner_list = models.ManyToManyField(User, related_name="Winner_list",blank=True)
+    Winner_list = models.ManyToManyField(settings.AUTH_USER_MODEL, related_name="Winner_list",blank=True)
   
     Winning_price = models.DecimalField(max_digits=10, decimal_places=2, default=0)
 
@@ -94,7 +95,7 @@ class CombinatorialAuction(models.Model):
 from django import forms
 
 class CombinatorialBid(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     auction = models.ForeignKey(CombinatorialAuction, on_delete=models.CASCADE, related_name="combinatorial_bids")
     products = models.ManyToManyField(Combinatorial_Product,related_name="combinatorial_bids_product")
     amount = models.DecimalField(max_digits=10, decimal_places=2)
