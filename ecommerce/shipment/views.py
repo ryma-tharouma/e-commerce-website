@@ -46,7 +46,7 @@ def create_product_for_delivery(product, store_id):
         response_data = response.json()
 
         # Assuming the response contains the 'product_id' key
-        product_id_delivery = response_data.get('product_id')
+        product_id_delivery = response_data.get('id')
         print("Response Data:", response_data)
         # Save the external product ID to the local product's `product_id_delivery` field
         product.product_id_delivery = product_id_delivery
@@ -126,20 +126,20 @@ def create_product_view(request, product_id):
         return JsonResponse({"error": "An unexpected error occurred"}, status=500)
 
 
-
-
 @api_view(['POST'])
 def create_shipment(request, order_id):
     try:
+        # Get the order based on the order_id
         order = Order.objects.get(id=order_id)
         print(f"Order ID: {order_id}")
         print(f"Request Body: {request.data}")
-# 
+
         # Prepare the payload for the external delivery API
         delivery_payload = {
+            # "external_order_id": str(order.id),  # External order ID (you can use your own reference format)
             "source": request.data.get("source"),
-            "destination_text": request.data.get("destination_text"),
-            "product_price": str(order.total_price),
+            "destination_text": request.data.get("destination_text", ""),
+            "product_price": str(order.total_price),  # Price of all products in the order
             "customer_name": request.data.get("customer_name"),
             "customer_phone": request.data.get("customer_phone"),
             "express": request.data.get("express", False),
@@ -148,30 +148,31 @@ def create_shipment(request, order_id):
             "note_to_driver": request.data.get("note_to_driver", ""),
             "products": [
                 {
-                    "product_id":item.product.product_id_delivery,  # Use
-                    
-                    #   str(item.product.id),
-                    "quantity": item.quantity
+                    "product_id": str(item.product.product_id_delivery),  # Product ID for delivery
+                    "quantity": item.quantity,
+                    "logistical_description": item.product.description or f"{item.prodcut.id}  No description available"  # Description for the product
                 } for item in order.items.all()
             ]
-
         }
+
+        # Log the product IDs and details for debugging
         for item in order.items.all():
-            product_id_delivery =  str(item.product.product_id_delivery)
+            product_id_delivery = str(item.product.product_id_delivery)
             print(f"Sending product_id_delivery: {product_id_delivery}")  # Debug log
 
+        # Headers for the API request
         headers = {
             "Authorization": f"TOKEN {settings.STORE_TOKEN}",
             "Content-Type": "application/json"
         }
 
-        # Send to external delivery API
+        # Send to the external delivery API
         response = requests.post(settings.ORDER_API_URL, json=delivery_payload, headers=headers)
 
         if response.status_code == 200:
             external_response = response.json()
 
-            # Create local Shipment
+            # Create local Shipment record in the database
             shipment = Shipment.objects.create(
                 order=order,
                 customer_name=request.data['customer_name'],
@@ -182,7 +183,7 @@ def create_shipment(request, order_id):
                 express=request.data.get('express', False),
                 note_to_driver=request.data.get('note_to_driver', ''),
                 status=request.data.get('status', 'pending'),
-                shipment_id=external_response.get('shipment_id')  # adapt based on external API response
+                shipment_id=external_response.get('shipment_id')  # Get the shipment ID from the external API response
             )
 
             return Response({
@@ -190,7 +191,7 @@ def create_shipment(request, order_id):
                 "shipment_id": shipment.shipment_id
             }, status=status.HTTP_201_CREATED)
 
-        else:
+        elif (response.status_code == 201):
             return Response({
                 "error": "Failed to create shipment with delivery service",
                 "details": response.text
@@ -205,92 +206,3 @@ def create_shipment(request, order_id):
 
 
 
-
-
-# @api_view(['POST'])
-# def create_shipment(request, order_id):
-#     try:
-#         order = Order.objects.get(id=order_id)
-#         print(f"Request Body: {request.data}")
-        
-#         # Send POST request to the product delivery API to create the product
-#         product_delivery_url = f"http://127.0.0.1:8000/api/shipment/product-delivery/{order_id}/"
-#         response = requests.post(product_delivery_url, json=request.data)
-        
-#         if response.status_code == 200:
-#             # Automatically extract product_id from the response
-#             product_data = response.json()
-#             product_id = product_data.get("data", {}).get("id", None)
-            
-#             if not product_id:
-#                 return Response({"error": "Product ID not found in the response"}, status=status.HTTP_400_BAD_REQUEST)
-
-#             # Prepare the payload for the external delivery API
-#             delivery_payload = {
-#                 "source": request.data.get("source"),
-#                 "destination_text": request.data.get("destination_text"),
-#                 "product_price": str(order.total_price),
-#                 "customer_name": request.data.get("customer_name"),
-#                 "customer_phone": request.data.get("customer_phone"),
-#                 "express": request.data.get("express", False),
-#                 "wilaya": request.data.get("wilaya"),
-#                 "commune": request.data.get("commune"),
-#                 "note_to_driver": request.data.get("note_to_driver", ""),
-#                 "products": [
-#                     {
-#                         "product_id": product_id,  # Directly use product_id from the response
-#                         "quantity": item.quantity
-#                     } for item in order.items.all()
-#                 ]
-#             }
-
-#             # Debug: print each product ID and quantity being sent
-#             for item in order.items.all():
-#                 print(f"Sending product_id: {product_id} with quantity: {item.quantity}")  # Debug log
-
-#             headers = {
-#                 "Authorization": f"TOKEN {settings.STORE_TOKEN}",
-#                 "Content-Type": "application/json"
-#             }
-
-#             # Send to external delivery API
-#             external_response = requests.post(settings.ORDER_API_URL, json=delivery_payload, headers=headers)
-
-#             if external_response.status_code == 200:
-#                 external_data = external_response.json()
-
-#                 # Create local Shipment
-#                 shipment = Shipment.objects.create(
-#                     order=order,
-#                     customer_name=request.data['customer_name'],
-#                     customer_phone=request.data['customer_phone'],
-#                     source=request.data['source'],
-#                     wilaya=request.data['wilaya'],
-#                     commune=request.data['commune'],
-#                     express=request.data.get('express', False),
-#                     note_to_driver=request.data.get('note_to_driver', ''),
-#                     status=request.data.get('status', 'pending'),
-#                     shipment_id=external_data.get('shipment_id')  # adapt based on external API response
-#                 )
-
-#                 return Response({
-#                     "message": "Shipment created successfully",
-#                     "shipment_id": shipment.shipment_id
-#                 }, status=status.HTTP_201_CREATED)
-
-#             else:
-#                 return Response({
-#                     "error": "Failed to create shipment with delivery service",
-#                     "details": external_response.text
-#                 }, status=external_response.status_code)
-
-#         else:
-#             return Response({
-#                 "error": "Failed to create product with delivery service",
-#                 "details": response.text
-#             }, status=response.status_code)
-
-#     except Order.DoesNotExist:
-#         return Response({"error": "Order not found"}, status=status.HTTP_404_NOT_FOUND)
-#     except Exception as e:
-#         return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)

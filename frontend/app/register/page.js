@@ -1,5 +1,6 @@
 "use client"
 import { useState } from "react"
+import { useRouter } from "next/navigation"
 import axios from "axios"
 import { Card } from "/components/ui/card"
 import { Button } from "/components/ui/button"
@@ -18,6 +19,7 @@ const registerUser = async (userData) => {
 }
 
 export default function Register() {
+  const router = useRouter();
   const [username, setUsername] = useState("")
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
@@ -32,6 +34,7 @@ export default function Register() {
       localStorage.setItem("token", access)
       setSuccess(true)
       setError(null)
+      router.push("/")
     } catch (err) {
       setError(err)
       setSuccess(false)
@@ -104,6 +107,15 @@ export default function Register() {
             {error.message || "An error occurred"}
           </p>
         )}
+              <div className="text-center text-sm text-gray-600">
+         have you an account?{" "}
+  <span
+    className="text-[#D4AF37] cursor-pointer hover:underline"
+    onClick={() => router.push('/login')}
+  >
+    Login now!
+  </span>
+</div>
       </Card>
     </div>
   )

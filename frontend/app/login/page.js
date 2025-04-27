@@ -1,72 +1,11 @@
-// "use client"
-// import { useState } from "react";
-// import axios from "axios";
-// const loginUser = async (credentials) => {
-//   try {
-//     const response = await axios.post( `${process.env.NEXT_PUBLIC_API_URL}/users/login/`, credentials);
-//     return response.data;
-//   } catch (err) {
-//     throw new Error("Invalid credentials");
-//   }
-// };
-
-// export default function Login() {
-//   const [username, setUsername] = useState("");
-//   const [password, setPassword] = useState("");
-//   const [error, setError] = useState(null);
-//   const [success, setSuccess] = useState(false);
-
-//   const handleSubmit = async (e) => {
-//     e.preventDefault();
-//     try {
-//       const credentials = { username, password };
-//       const { access } = await loginUser(credentials);
-//       localStorage.setItem("token", access);
-//       setSuccess(true);
-//       setError(null);
-//     } catch (err) {
-//       setError(err);
-//       setSuccess(false);
-//     }
-//   };
-
-//   return (
-//     <div className="max-w-md mx-auto p-6">
-//       <h1 className="text-3xl font-semibold mb-4">Login</h1>
-//       <form onSubmit={handleSubmit} className="space-y-4">
-//         <input
-//           type="text"
-//           placeholder="Username"
-//           value={username}
-//           onChange={(e) => setUsername(e.target.value)}
-//           className="w-full p-3 border border-gray-300 rounded"
-//         />
-//         <input
-//           type="password"
-//           placeholder="Password"
-//           value={password}
-//           onChange={(e) => setPassword(e.target.value)}
-//           className="w-full p-3 border border-gray-300 rounded"
-//         />
-//         <button
-//           type="submit"
-//           className="w-full bg-blue-500 text-white py-3 rounded hover:bg-blue-600"
-//         >
-//           Login
-//         </button>
-//       </form>
-
-//       {success && <p className="text-green-500 mt-4">Login successful!</p>}
-//       {error && <p className="text-red-500 mt-4">{error.message || 'Login failed'}</p>}
-//     </div>
-//   );
-// }
 "use client"
 import { useState } from "react"
+import {useRouter} from "next/navigation"
 import axios from "axios"
 import { Card } from "/components/ui/card"
 import { Button } from "/components/ui/button"
 import { Lock, UserRound } from "lucide-react"
+
 
 const loginUser = async (credentials) => {
   try {
@@ -81,6 +20,7 @@ const loginUser = async (credentials) => {
 }
 
 export default function Login() {
+  const router = useRouter();
   const [username, setUsername] = useState("")
   const [password, setPassword] = useState("")
   const [error, setError] = useState(null)
@@ -89,11 +29,15 @@ export default function Login() {
   const handleSubmit = async (e) => {
     e.preventDefault()
     try {
+    
+
       const credentials = { username, password }
       const { access } = await loginUser(credentials)
       localStorage.setItem("token", access)
       setSuccess(true)
+      
       setError(null)
+      router.push('/')
     } catch (err) {
       setError(err)
       setSuccess(false)
@@ -146,7 +90,17 @@ export default function Login() {
             {error.message || "Login failed"}
           </p>
         )}
+              <div className="text-center text-sm text-gray-600">
+        Don't have an account?{" "}
+  <span
+    className="text-[#D4AF37] cursor-pointer hover:underline"
+    onClick={() => router.push('/register')}
+  >
+    Register now!
+  </span>
+</div>
       </Card>
+
     </div>
   )
 }

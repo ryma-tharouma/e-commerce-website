@@ -23,7 +23,7 @@ class Product(models.Model):
 class Combinatorial_Product(models.Model):
     name = models.CharField(max_length=255)
     description = models.TextField()
-    seller = models.ForeignKey(User, on_delete=models.CASCADE)
+    seller = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     
     def __str__(self):
         return self.name    
