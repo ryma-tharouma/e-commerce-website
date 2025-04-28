@@ -173,12 +173,15 @@ def send_invoice_email(auction,user_email , pdf_buffer):
     except Exception as e:
         print(f"❌ Erreur d'envoi d'email: {e}")
 
+from django.contrib.auth import get_user_model
 
 
 def get_user_bids(request, user_id):
     try:
         # Fetch the user from the database
-        user = User.objects.get(id=user_id)
+        # user = User.objects.get(id=user_id)
+        user = get_user_model().objects.get(id=user_id)
+
         
         # Fetch bids for the user from all relevant models
         english_bids = EnglishBid.objects.filter(bidder=user)
